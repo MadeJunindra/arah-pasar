@@ -144,7 +144,7 @@ dialog a { color: var(--accent); }
 <header class="top">
   <div class="brand">Arah Pasar<span>analisa teknikal + kalender Forex Factory</span></div>
   <div class="seg" id="tfs" role="group" aria-label="Timeframe">
-    <button data-tf="15m">15 menit</button><button data-tf="1h">1 jam</button><button data-tf="4h">4 jam</button><button data-tf="1d">Harian</button>
+    <button data-tf="1m">1 menit</button><button data-tf="15m">15 menit</button><button data-tf="1h">1 jam</button><button data-tf="4h">4 jam</button><button data-tf="1d">Harian</button>
   </div>
   <button class="btn" id="btn-settings">Pengaturan</button>
 </header>
@@ -154,10 +154,11 @@ dialog a { color: var(--accent); }
     <div class="wl-head"><span>Instrumen</span><span id="wl-status"></span></div>
     <ul class="wl" id="wl"></ul>
     <form class="add" id="add-form">
-      <input id="add-symbol" placeholder="Tambah simbol, mis. MSFT" aria-label="Simbol" required>
-      <select id="add-type" aria-label="Jenis"><option value="stock">Saham</option><option value="crypto">Kripto</option><option value="forex">Forex</option></select>
+      <input id="add-symbol" placeholder="Cari kode, mis. BBCA" aria-label="Simbol" list="idx-list" autocomplete="off" required>
+      <datalist id="idx-list"></datalist>
+      <select id="add-type" aria-label="Jenis"><option value="idx">Saham Indonesia</option><option value="stock">Saham AS</option><option value="crypto">Kripto</option><option value="forex">Forex</option></select>
       <button class="btn" type="submit">Tambah ke daftar</button>
-      <div class="note" id="add-msg" style="grid-column:1/-1">Kripto pakai format Binance (DOGEUSDT). Forex pakai AUD/USD.</div>
+      <div class="note" id="add-msg" style="grid-column:1/-1"></div>
     </form>
   </aside>
 
@@ -190,7 +191,28 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&
 const store = { get(k, d) { try { return localStorage.getItem(k) ?? d; } catch { return d; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
 
 const state = { tf: store.get('tf', '1h'), id: store.get('id', 'xauusd'), items: [], hasKey: false, rows: {}, news: [], newsFilter: store.get('nf', 'hm'), detail: null };
-let chart = null, loadToken = 0;
+let chart = null, loadToken = 0, idxNames = new Map();
+
+// Simbol tambahan disimpan di browser ini, jadi tetap bisa dipakai pada versi online.
+function customList() { try { const v = JSON.parse(store.get('custom', '[]')); return Array.isArray(v) ? v : []; } catch { return []; } }
+const ADD_HINT = {
+  idx: ['Cari kode, mis. BBCA', 'Ketik kode atau nama emiten. Data saham Indonesia butuh paket Pro Twelve Data.'],
+  stock: ['Kode saham AS, mis. MSFT', 'Saham AS butuh API key gratis Twelve Data.'],
+  crypto: ['Pasangan Binance, mis. DOGEUSDT', 'Kripto memakai format Binance dan tidak butuh API key.'],
+  forex: ['Pasangan, mis. AUD/USD', 'Forex butuh API key gratis Twelve Data.'],
+};
+function setAddType() {
+  const t = $('#add-type').value;
+  $('#add-symbol').placeholder = ADD_HINT[t][0]; $('#add-msg').textContent = ADD_HINT[t][1];
+  if (t === 'idx') $('#add-symbol').setAttribute('list', 'idx-list'); else $('#add-symbol').removeAttribute('list');
+}
+async function loadIdx() {
+  try {
+    const rows = await api('/api/idx');
+    idxNames = new Map(rows);
+    $('#idx-list').innerHTML = rows.map(([c, n]) => `<option value="${esc(c)}">${esc(n)}</option>`).join('');
+  } catch {}
+}
 
 const fmt = (v, d) => v == null ? '–' : Number(v).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
 const tone = (a) => a.action === 'BUY' ? 'up' : a.action === 'SELL' ? 'down' : 'wait';
@@ -273,7 +295,7 @@ function renderDetail(a) {
   $('#detail').innerHTML = `
     <div class="title-row">
       <h1>${esc(a.name)}</h1><span class="price num">${fmt(a.price, d)}</span>
-      <span class="num ${a.change24h >= 0 ? 'up-t' : 'down-t'}">${a.change24h >= 0 ? '+' : ''}${a.change24h.toFixed(2)}% (24 jam)</span>
+      <span class="num ${a.change24h >= 0 ? 'up-t' : 'down-t'}">${a.change24h >= 0 ? '+' : ''}${a.change24h.toFixed(2)}% (${a.changeHours} jam)</span>
     </div>
     <div class="note" style="margin:2px 0 14px">Sumber harga: ${esc(a.source)}${a.proxy ? ` — memakai ${esc(a.proxy)}. Isi API key di Pengaturan untuk harga XAU/USD asli.` : ''} · diperbarui ${new Date(a.updated).toLocaleTimeString('id-ID')}</div>
 
@@ -386,7 +408,7 @@ async function loadDetail(quiet) {
     if (token !== loadToken || quiet) return;
     state.detail = null;
     const needKey = it && it.needsKey && !state.hasKey;
-    $('#detail').innerHTML = `<div class="state"><b>${needKey ? esc(it.name) + ' butuh API key Twelve Data' : 'Data tidak bisa dimuat'}</b>${esc(e.message)}<br><br>${needKey ? '<button class="btn primary" id="open-key">Isi API key gratis</button>' : '<button class="btn" id="retry">Coba lagi</button>'}</div>`;
+    $('#detail').innerHTML = `<div class="state"><b>${needKey ? esc(it.name) + ' butuh API key Twelve Data' : 'Data tidak bisa dimuat'}</b>${esc(e.message)}<br><br>${needKey ? (state.locked ? 'Tambahkan variabel TWELVEDATA_KEY di pengaturan Vercel, lalu Redeploy.' : '<button class="btn primary" id="open-key">Isi API key gratis</button>') : '<button class="btn" id="retry">Coba lagi</button>'}</div>`;
   }
 }
 
@@ -397,8 +419,8 @@ async function loadNews() {
 
 async function loadInstruments() {
   const r = await api('/api/instruments');
-  state.items = r.items; state.hasKey = r.hasKey;
-  $('#add-form').hidden = r.locked; $('#btn-settings').hidden = r.locked;
+  state.items = [...r.items, ...customList()]; state.hasKey = r.hasKey;
+  $('#btn-settings').hidden = r.locked; state.locked = r.locked;
   if (!state.items.some((i) => i.id === state.id)) state.id = state.items[0].id;
   $('#key-state').textContent = r.hasKey ? 'API key sudah tersimpan di komputer ini.' : 'Belum ada API key.';
   renderWatchlist();
@@ -416,7 +438,8 @@ $('#wl').addEventListener('click', async (e) => {
   const del = e.target.closest('[data-del]');
   if (del) {
     e.stopPropagation();
-    await api(`/api/instruments?id=${encodeURIComponent(del.dataset.del)}`, { method: 'DELETE' });
+    store.set('custom', JSON.stringify(customList().filter((i) => i.id !== del.dataset.del)));
+    delete state.rows[del.dataset.del];
     await loadInstruments(); loadDetail(); return;
   }
   const b = e.target.closest('button[data-id]'); if (!b) return;
@@ -437,21 +460,30 @@ $('#key-form').addEventListener('submit', async (e) => {
   $('#key').value = ''; $('#dlg').close(); state.rows = {};
   await loadInstruments(); loadDetail(); refreshWatchlist();
 });
+$('#add-type').addEventListener('change', setAddType);
 $('#add-form').addEventListener('submit', async (e) => {
   e.preventDefault();
-  try {
-    const inst = await api('/api/instruments', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ symbol: $('#add-symbol').value, type: $('#add-type').value }) });
-    $('#add-symbol').value = ''; $('#add-msg').textContent = `${inst.name} ditambahkan.`;
-    state.id = inst.id; store.set('id', inst.id);
-    await loadInstruments(); loadDetail();
-  } catch (err) { $('#add-msg').textContent = err.message; }
+  const type = $('#add-type').value, msg = $('#add-msg');
+  const sym = $('#add-symbol').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (sym.length < 2 || sym.length > 12) { msg.textContent = 'Simbol tidak valid.'; return; }
+  if (type === 'forex' && sym.length !== 6) { msg.textContent = 'Pasangan forex harus 6 huruf, mis. AUD/USD.'; return; }
+  if (type === 'idx' && idxNames.size && !idxNames.has(sym)) { msg.textContent = `Kode ${sym} tidak ada di daftar Bursa Efek Indonesia.`; return; }
+  const id = `x-${type}-${sym}`;
+  if (state.items.some((i) => i.id === id)) { msg.textContent = `${sym} sudah ada di daftar.`; return; }
+  const name = type === 'forex' ? sym.slice(0, 3) + '/' + sym.slice(3) : sym;
+  const desc = type === 'idx' ? (idxNames.get(sym) || 'Saham Indonesia') : type === 'crypto' ? 'Kripto' : type === 'forex' ? 'Forex' : 'Saham';
+  store.set('custom', JSON.stringify([...customList(), { id, name, desc, type, custom: true, needsKey: type !== 'crypto' }]));
+  $('#add-symbol').value = ''; msg.textContent = `${name} ditambahkan.`;
+  state.id = id; store.set('id', id);
+  await loadInstruments(); loadDetail();
 });
 
 (async function start() {
-  setTf();
+  setTf(); setAddType(); loadIdx();
   try { await loadInstruments(); } catch (e) { $('#detail').innerHTML = `<div class="state"><b>Server tidak terhubung</b>${esc(e.message)}</div>`; return; }
   loadDetail(); loadNews(); refreshWatchlist();
-  setInterval(() => { if (!document.hidden) loadDetail(true); }, 60 * 1000);
+  let tick = 0;
+  setInterval(() => { tick++; if (!document.hidden && (state.tf === '1m' || tick % 3 === 0)) loadDetail(true); }, 20 * 1000);
   setInterval(() => { if (!document.hidden) { refreshWatchlist(); loadNews(); } }, 5 * 60 * 1000);
 })();
 </script>

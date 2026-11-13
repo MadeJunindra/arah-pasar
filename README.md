@@ -12,12 +12,12 @@ ditambah kalender berita Forex Factory.
 ## Sumber data
 
 - Kripto (BTC, ETH, SOL, dll): Binance, tanpa API key.
-- XAU/USD, forex, saham: Twelve Data, butuh API key gratis. Isi lewat tombol Pengaturan.
-  Tanpa key, emas memakai PAXG/USDT sebagai pengganti.
+- XAU/USD, forex, saham AS: Twelve Data, butuh API key gratis. Tanpa key, emas memakai PAXG/USDT sebagai pengganti.
+- Saham Indonesia (927 emiten bisa dicari): Twelve Data paket Pro (berbayar). Di paket gratis hanya PGAS yang terbuka.
 - Berita: kalender mingguan Forex Factory.
 
-Paket gratis Twelve Data dibatasi 8 permintaan per menit dan 800 per hari, dan umumnya hanya
-mencakup saham AS (saham Indonesia seperti BBCA butuh paket berbayar).
+Paket gratis Twelve Data dibatasi 8 permintaan per menit dan 800 per hari.
+Simbol yang Anda tambahkan disimpan di browser, jadi daftarnya berbeda di tiap perangkat.
 
 ## Cara sinyal dihitung
 
