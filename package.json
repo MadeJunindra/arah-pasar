@@ -1,0 +1,8 @@
+{
+  "name": "arah-pasar",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Analisa arah pasar, sinyal BUY/SELL, dan kalender Forex Factory",
+  "scripts": { "start": "node server.js", "start:online": "HOST=0.0.0.0 node server.js" },
+  "engines": { "node": ">=18" }
+}

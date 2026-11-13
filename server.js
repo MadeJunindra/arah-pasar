@@ -10,6 +10,8 @@ const HOST = process.env.HOST || '127.0.0.1';
 const PUBLIC = path.join(__dirname, 'public');
 const CONFIG_FILE = path.join(__dirname, 'config.json');
 const TFS = ['15m', '1h', '4h', '1d'];
+// Saat dipasang online (bukan 127.0.0.1), pengaturan dikunci: API key hanya dari variabel TWELVEDATA_KEY.
+const LOCKED = HOST !== '127.0.0.1' && HOST !== 'localhost';
 
 // ---------- Konfigurasi ----------
 let config = { tdKey: '', custom: [] };
@@ -204,8 +206,9 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://x');
   try {
     if (url.pathname === '/api/instruments' && req.method === 'GET') {
-      return send(res, 200, { hasKey: !!config.tdKey, items: instruments().map((i) => ({ id: i.id, name: i.name, desc: i.desc, type: i.type, custom: !!i.custom, needsKey: i.sources.every((s) => s.p === 'td') })) });
+      return send(res, 200, { hasKey: !!config.tdKey, locked: LOCKED, items: instruments().map((i) => ({ id: i.id, name: i.name, desc: i.desc, type: i.type, custom: !!i.custom, needsKey: i.sources.every((s) => s.p === 'td') })) });
     }
+    if (LOCKED && req.method !== 'GET') return send(res, 403, { error: 'Pengaturan dikunci pada versi online. Ubah lewat variabel TWELVEDATA_KEY di layanan hosting.' });
     if (url.pathname === '/api/instruments' && req.method === 'POST') return send(res, 200, addCustom(await readBody(req)));
     if (url.pathname === '/api/instruments' && req.method === 'DELETE') {
       config.custom = config.custom.filter((i) => i.id !== url.searchParams.get('id'));

@@ -398,6 +398,7 @@ async function loadNews() {
 async function loadInstruments() {
   const r = await api('/api/instruments');
   state.items = r.items; state.hasKey = r.hasKey;
+  $('#add-form').hidden = r.locked; $('#btn-settings').hidden = r.locked;
   if (!state.items.some((i) => i.id === state.id)) state.id = state.items[0].id;
   $('#key-state').textContent = r.hasKey ? 'API key sudah tersimpan di komputer ini.' : 'Belum ada API key.';
   renderWatchlist();
@@ -431,7 +432,8 @@ document.addEventListener('click', (e) => {
 });
 $('#key-form').addEventListener('submit', async (e) => {
   e.preventDefault();
-  await api('/api/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tdKey: $('#key').value }) });
+  try { await api('/api/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tdKey: $('#key').value }) }); }
+  catch (err) { $('#key-state').textContent = err.message; return; }
   $('#key').value = ''; $('#dlg').close(); state.rows = {};
   await loadInstruments(); loadDetail(); refreshWatchlist();
 });

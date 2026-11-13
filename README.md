@@ -26,3 +26,11 @@ struktur puncak-lembah (20), MACD (15), RSI (15). BUY jika skor >= 30 dan timefr
 SELL jika <= -30. Stop loss 1,5 x ATR atau di balik swing terakhir; TP 1/2/3 pada 1x, 2x, 3x jarak stop loss.
 
 Ini alat bantu, bukan nasihat keuangan.
+
+## Memasang online (Render)
+
+1. Di render.com buat **Web Service** dari repo GitHub ini.
+2. Build command: kosongkan (atau `npm install`). Start command: `npm run start:online`
+3. Tambah environment variable `TWELVEDATA_KEY` berisi API key Twelve Data.
+
+Pada versi online, tombol Pengaturan dan tambah simbol dinonaktifkan supaya orang lain tidak bisa mengubahnya.
