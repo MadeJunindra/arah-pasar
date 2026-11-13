@@ -33,3 +33,18 @@ Ini alat bantu, bukan nasihat keuangan.
 2. Untuk XAU/USD asli, forex, dan saham: di Settings > Environment Variables tambahkan `TWELVEDATA_KEY`, lalu Redeploy.
 
 Pada versi online, tombol Pengaturan dan tambah simbol dinonaktifkan supaya orang lain tidak bisa mengubahnya.
+
+## Login (opsional)
+
+Isi variabel `USERS` dengan format `nama:katasandi`, dipisah koma, misalnya `budi:Rahasia123,sari:Rahasia456`.
+Nama hanya huruf kecil, angka, titik, garis bawah, atau strip. Kata sandi minimal 6 karakter dan tidak boleh berisi koma.
+
+Satu akun hanya aktif di satu perangkat: login baru mengeluarkan sesi di perangkat sebelumnya.
+Mengganti kata sandi di `USERS` juga mengeluarkan semua sesi akun itu.
+
+Di Vercel, aturan satu perangkat butuh database sesi:
+1. Di proyek Vercel buka **Storage**, pilih **Upstash** (Redis), buat database paket gratis, lalu **Connect** ke proyek ini.
+2. Tambah variabel `USERS` di Settings > Environment Variables.
+3. Redeploy.
+
+Tanpa `USERS`, aplikasi terbuka untuk siapa saja yang tahu alamatnya.
