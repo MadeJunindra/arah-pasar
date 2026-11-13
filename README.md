@@ -27,10 +27,9 @@ SELL jika <= -30. Stop loss 1,5 x ATR atau di balik swing terakhir; TP 1/2/3 pad
 
 Ini alat bantu, bukan nasihat keuangan.
 
-## Memasang online (Render)
+## Memasang online (Vercel, gratis tanpa kartu)
 
-1. Di render.com buat **Web Service** dari repo GitHub ini.
-2. Build command: kosongkan (atau `npm install`). Start command: `npm run start:online`
-3. Tambah environment variable `TWELVEDATA_KEY` berisi API key Twelve Data.
+1. Di vercel.com masuk dengan akun GitHub, klik **Add New > Project**, pilih repo ini, lalu **Deploy**.
+2. Untuk XAU/USD asli, forex, dan saham: di Settings > Environment Variables tambahkan `TWELVEDATA_KEY`, lalu Redeploy.
 
 Pada versi online, tombol Pengaturan dan tambah simbol dinonaktifkan supaya orang lain tidak bisa mengubahnya.
