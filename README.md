@@ -23,7 +23,7 @@ Simbol yang Anda tambahkan disimpan di browser, jadi daftarnya berbeda di tiap p
 
 Skor -100 sampai +100 dari lima faktor: tren EMA 20/50/200 (25), tren timeframe lebih besar (25),
 struktur puncak-lembah (20), MACD (15), RSI (15). BUY jika skor >= 30 dan timeframe besar searah,
-SELL jika <= -30. Stop loss 1,5 x ATR atau di balik swing terakhir; TP 1/2/3 pada 1x, 2x, 3x jarak stop loss.
+SELL jika <= -30. Stop loss 2 x ATR atau di balik swing terakhir; TP 1/2/3 pada 1x, 2x, 3x jarak stop loss.
 
 Ini alat bantu, bukan nasihat keuangan.
 

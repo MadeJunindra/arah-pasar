@@ -25,7 +25,7 @@ button { cursor: pointer; }
 .muted { color: var(--muted); }
 [hidden] { display: none !important; }
 
-header.top { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 12px 20px; border-bottom: 1px solid var(--line); }
+header.top { position: sticky; top: 0; z-index: 5; background: var(--bg); display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 12px 20px; border-bottom: 1px solid var(--line); }
 .brand { font-size: 17px; font-weight: 700; letter-spacing: -.01em; margin-right: auto; }
 .brand span { color: var(--muted); font-weight: 400; font-size: 13px; margin-left: 8px; }
 .seg { display: flex; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 3px; }
@@ -62,6 +62,29 @@ main { padding: 20px; display: flex; flex-direction: column; gap: 16px; min-widt
 .title-row h1 { margin: 0; font-size: 24px; letter-spacing: -.02em; }
 .title-row .price { font-size: 22px; font-weight: 600; }
 .note { font-size: 12px; color: var(--muted); }
+.live { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: .06em; padding: 2px 9px; border-radius: 999px; background: var(--panel-2); color: var(--muted); align-self: center; }
+.live::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+.live.on { background: var(--up-bg); color: var(--up); }
+.live.on::before { background: var(--up); animation: pulse 1.4s infinite; }
+@keyframes pulse { 50% { opacity: .25; } }
+.price, .wl .px { transition: color .5s; }
+.flash-up { color: var(--up) !important; transition: none !important; } .flash-down { color: var(--down) !important; transition: none !important; }
+.mtf { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-bottom: 16px; }
+.mtf button { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; text-align: left; min-width: 0; }
+.mtf button:hover { background: var(--panel-2); }
+.mtf button[aria-pressed="true"] { border-color: var(--accent); }
+.mtf small { display: block; color: var(--muted); font-size: 11px; margin-bottom: 3px; }
+.mtf b { font-size: 12px; overflow-wrap: anywhere; }
+.agree { margin: -8px 0 16px; font-size: 13px; }
+.livepl { display: flex; gap: 6px 18px; flex-wrap: wrap; margin-top: 10px; font-size: 13px; }
+.tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: end; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+.tools label { display: flex; flex-direction: column; gap: 3px; font-size: 11px; color: var(--muted); }
+.tools input { width: 110px; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 5px 8px; }
+.tools output { font-size: 13px; flex: 1 1 180px; }
+.rec { margin-top: 12px; padding: 12px; border-radius: 10px; background: var(--bg); font-size: 13px; }
+.rec b.big { font-size: 20px; }
+.wl li.dim { opacity: .55; }
+@media (prefers-reduced-motion: reduce) { .live.on::before { animation: none; } }
 
 .verdict { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 16px; }
 .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; min-width: 0; }
@@ -135,6 +158,7 @@ dialog a { color: var(--accent); }
   .verdict, .two { grid-template-columns: minmax(0, 1fr); }
   main { padding: 16px; }
   .lv { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mtf { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   #chart { height: 320px; }
   .bias, .action { font-size: 28px; }
 }
@@ -234,11 +258,11 @@ function renderWatchlist() {
     if (r && r.error) tags = `<span>${esc(it.needsKey && !state.hasKey ? 'Butuh API key' : r.error)}</span>`;
     else if (r) {
       px = fmt(r.price, r.dec);
-      ch = `<span class="ch num ${r.change24h >= 0 ? 'up' : 'down'}">${r.change24h >= 0 ? '+' : ''}${r.change24h.toFixed(2)}%</span>`;
+      ch = `<span data-ch="${esc(r.stream || '')}" class="ch num ${r.change24h >= 0 ? 'up' : 'down'}">${r.change24h >= 0 ? '+' : ''}${r.change24h.toFixed(2)}%</span>`;
       tags = `<span class="pill ${biasTone(r.score)}">${esc(r.bias)}</span><span class="pill ${tone(r)}">${esc(r.action)}</span>${r.news.danger ? '<span title="Berita berdampak tinggi sebentar lagi">⚠ berita</span>' : ''}`;
     }
-    return `<li><button data-id="${esc(it.id)}" aria-current="${it.id === state.id}">
-      <span class="nm">${esc(it.name)}</span><span class="px num">${px}</span>
+    return `<li class="${r && r.error ? 'dim' : ''}"><button data-id="${esc(it.id)}" aria-current="${it.id === state.id}">
+      <span class="nm">${esc(it.name)}</span><span class="px num" data-px="${esc(r && r.stream || '')}" data-dec="${r && r.dec != null ? r.dec : 2}">${px}</span>
       <span class="ds">${esc(it.desc)}</span>${ch || '<span></span>'}
       <span class="tags">${tags}${it.custom ? `<span class="x" data-del="${esc(it.id)}" title="Hapus dari daftar" role="button">✕</span>` : ''}</span>
     </button></li>`;
@@ -256,6 +280,7 @@ async function refreshWatchlist() {
     catch (e) { state.rows[it.id] = { error: e.message }; }
     renderWatchlist();
   }
+  connectLive();
   $('#wl-status').textContent = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
 }
 
@@ -278,7 +303,14 @@ function renderDetail(a) {
         <div><small>TP 2 (1:2)</small><b class="up-t">${fmt(p.tp2, d)}</b></div>
         <div><small>TP 3 (1:3)</small><b class="up-t">${fmt(p.tp3, d)}</b></div>
       </div>
-      <p class="note" style="margin:10px 0 0">Stop loss ${esc(p.slBasis)}, jarak ${fmt(p.risk, d)}. Setelah TP 1 kena, geser stop loss ke harga entry.</p>` : `
+      <div class="livepl num" id="livepl"></div>
+      <p class="note" style="margin:10px 0 0">Stop loss ${esc(p.slBasis)}, jarak ${fmt(p.risk, d)}. Setelah TP 1 kena, geser stop loss ke harga entry.</p>
+      <div class="tools">
+        <label>Risiko per posisi (USD)<input id="calc-risk" type="number" min="0" step="1" value="${esc(store.get('risk', '10'))}"></label>
+        <label>Ukuran kontrak 1 lot<input id="calc-contract" type="number" min="0" step="any" value="${esc(store.get('contract-' + a.type, a.type === 'metal' ? '100' : a.type === 'forex' ? '100000' : '1'))}"></label>
+        <output id="calc-out"></output>
+        <button class="btn" id="copy-levels" type="button">Salin level</button>
+      </div>` : `
       <div class="sig-head"><div class="action wait-t">TUNGGU</div></div>
       <p style="margin:8px 0 0">${esc(a.whyWait)}</p>
       <div class="lv num" style="grid-template-columns:repeat(2,minmax(0,1fr))">
@@ -292,12 +324,16 @@ function renderDetail(a) {
   }).join('');
   const I = a.indicators;
 
+  const keepEl = chart && chartKey === a.id + a.tf ? $('#chart') : null;
   $('#detail').innerHTML = `
     <div class="title-row">
-      <h1>${esc(a.name)}</h1><span class="price num">${fmt(a.price, d)}</span>
+      <h1>${esc(a.name)}</h1><span class="price num" id="px">${fmt(a.price, d)}</span>
       <span class="num ${a.change24h >= 0 ? 'up-t' : 'down-t'}">${a.change24h >= 0 ? '+' : ''}${a.change24h.toFixed(2)}% (${a.changeHours} jam)</span>
+      <span class="live" id="live">${a.stream ? 'MENYAMBUNG' : 'TERTUNDA'}</span>
     </div>
-    <div class="note" style="margin:2px 0 14px">Sumber harga: ${esc(a.source)}${a.proxy ? ` — memakai ${esc(a.proxy)}. Isi API key di Pengaturan untuk harga XAU/USD asli.` : ''} · diperbarui ${new Date(a.updated).toLocaleTimeString('id-ID')}</div>
+    <div class="note" style="margin:2px 0 14px">Sumber harga: ${esc(a.source)}${a.proxy ? ` — memakai ${esc(a.proxy)}. Isi API key di Pengaturan untuk harga XAU/USD asli.` : ''} · analisa diperbarui ${new Date(a.updated).toLocaleTimeString('id-ID')}</div>
+    <div class="mtf" id="mtf"></div>
+    <div class="agree" id="agree"></div>
 
     <div class="verdict">
       <div class="card">
@@ -328,6 +364,7 @@ function renderDetail(a) {
           <div><small>Support</small><b>${fmt(a.support, d)}</b></div>
           <div><small>Resistance</small><b>${fmt(a.resistance, d)}</b></div>
         </div>
+        ${recordHtml(a)}
       </div>
       <div class="card">
         <div class="news-tools">
@@ -337,30 +374,49 @@ function renderDetail(a) {
         <div class="news-list" id="news"></div>
       </div>
     </div>`;
-  drawChart(a);
-  renderNews();
+  drawChart(a, keepEl);
+  renderNews(); renderMtf(); updateCalc(); updateLive(a.price); connectLive();
 }
 
-function drawChart(a) {
-  const el = $('#chart');
-  if (chart) { chart.remove(); chart = null; }
+function drawChart(a, keepEl) {
+  const key = a.id + a.tf;
   const off = -new Date().getTimezoneOffset() * 60; // tampilkan waktu lokal
-  chart = LightweightCharts.createChart(el, {
-    autoSize: true,
-    layout: { background: { color: 'transparent' }, textColor: css('--muted'), fontFamily: css('--sans') },
-    grid: { vertLines: { color: 'rgba(38,50,66,.5)' }, horzLines: { color: 'rgba(38,50,66,.5)' } },
-    rightPriceScale: { borderColor: css('--line') },
-    timeScale: { borderColor: css('--line'), timeVisible: a.tf !== '1d', secondsVisible: false },
-    crosshair: { mode: 0 },
-  });
-  const pf = { type: 'price', precision: a.dec, minMove: 1 / 10 ** a.dec };
-  const cs = chart.addCandlestickSeries({ upColor: css('--up'), downColor: css('--down'), wickUpColor: css('--up'), wickDownColor: css('--down'), borderVisible: false, priceFormat: pf });
-  cs.setData(a.candles.map((k) => ({ time: k.t + off, open: k.o, high: k.h, low: k.l, close: k.c })));
-  [['ema20', css('--accent')], ['ema50', css('--wait')], ['ema200', '#b48cf2']].forEach(([key, color]) => {
-    const s = chart.addLineSeries({ color, lineWidth: 1, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false, priceFormat: pf });
-    s.setData(a.candles.map((k, i) => ({ time: k.t + off, value: a.series[key][i] })).filter((p) => p.value != null));
-  });
-  const line = (price, title, color, style = 2) => price != null && cs.createPriceLine({ price, title, color, lineWidth: 1, lineStyle: style, axisLabelVisible: true });
+  const candles = a.candles.map((k) => ({ time: k.t + off, open: k.o, high: k.h, low: k.l, close: k.c }));
+  const emaData = (name) => a.candles.map((k, i) => ({ time: k.t + off, value: a.series[name][i] })).filter((p) => p.value != null);
+  const EMAS = [['ema20', css('--accent')], ['ema50', css('--wait')], ['ema200', '#b48cf2']];
+
+  if (keepEl && chart && chartKey === key) {
+    // Pembaruan rutin: grafik yang sama dipakai lagi, jadi zoom dan geseran pengguna tidak berubah.
+    $('#chart').replaceWith(keepEl);
+    cRefs.cs.setData(candles);
+    EMAS.forEach(([name], i) => cRefs.emas[i].setData(emaData(name)));
+    cRefs.lines.forEach((l) => { try { cRefs.cs.removePriceLine(l); } catch {} });
+  } else {
+    if (chart) { chart.remove(); chart = null; }
+    chartKey = key;
+    chart = LightweightCharts.createChart($('#chart'), {
+      autoSize: true,
+      layout: { background: { color: 'transparent' }, textColor: css('--muted'), fontFamily: css('--sans') },
+      grid: { vertLines: { color: 'rgba(38,50,66,.5)' }, horzLines: { color: 'rgba(38,50,66,.5)' } },
+      rightPriceScale: { borderColor: css('--line') },
+      timeScale: { borderColor: css('--line'), timeVisible: a.tf !== '1d', secondsVisible: false },
+      crosshair: { mode: 0 },
+    });
+    const pf = { type: 'price', precision: a.dec, minMove: 1 / 10 ** a.dec };
+    const cs = chart.addCandlestickSeries({ upColor: css('--up'), downColor: css('--down'), wickUpColor: css('--up'), wickDownColor: css('--down'), borderVisible: false, priceFormat: pf });
+    cs.setData(candles);
+    const emas = EMAS.map(([name, color]) => {
+      const s = chart.addLineSeries({ color, lineWidth: 1, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false, priceFormat: pf });
+      s.setData(emaData(name));
+      return s;
+    });
+    cRefs = { cs, emas, lines: [] };
+    chart.timeScale().setVisibleLogicalRange({ from: a.candles.length - 140, to: a.candles.length + 8 });
+  }
+  const cs = cRefs.cs;
+  liveSeries = cs; liveOff = off; liveLastT = a.candles[a.candles.length - 1].t;
+  cRefs.lines = [];
+  const line = (price, title, color, style = 2) => { if (price != null) cRefs.lines.push(cs.createPriceLine({ price, title, color, lineWidth: 1, lineStyle: style, axisLabelVisible: true })); };
   if (a.plan) {
     line(a.plan.entry, 'Entry', css('--fg'));
     line(a.plan.sl, 'SL', css('--down'));
@@ -368,7 +424,6 @@ function drawChart(a) {
   } else {
     line(a.resistance, 'Resistance', css('--muted'), 1); line(a.support, 'Support', css('--muted'), 1);
   }
-  chart.timeScale().setVisibleLogicalRange({ from: a.candles.length - 140, to: a.candles.length + 8 });
 }
 
 function renderNews() {
@@ -396,12 +451,115 @@ function renderNews() {
   if (next) box.scrollTop = Math.max(0, next.offsetTop - box.offsetTop - 60);
 }
 
+// ---------- Rekam jejak, multi-timeframe, kalkulator ----------
+const TF_NOTE = {
+  '1m': 'Timeframe 1 menit belum diuji jangka panjang. Di 15 menit, sinyal ini setara lempar koin.',
+  '15m': 'Uji 125 hari pada 6 instrumen: setara lempar koin, rugi setelah biaya.',
+  '1h': 'Uji 416 hari pada 6 instrumen: kira-kira impas setelah biaya.',
+  '4h': 'Uji 1.000 hari pada 6 instrumen: sedikit unggul, sekitar 54–57% menyentuh TP 1 lebih dulu.',
+  '1d': 'Timeframe harian belum diuji jangka panjang.',
+};
+function recordHtml(a) {
+  const r = a.record;
+  let body = 'Belum cukup data untuk menghitung rekam jejak.';
+  if (r && r.n >= 5) {
+    const p1 = Math.round(100 * r.tp1 / r.n), p2 = Math.round(100 * r.tp2 / r.n);
+    body = `<b class="big num ${p1 >= 55 ? 'up-t' : p1 < 50 ? 'down-t' : 'wait-t'}">${p1}%</b> dari ${r.n} sinyal terakhir (${r.days >= 2 ? Math.round(r.days) + ' hari' : Math.round(r.days * 24) + ' jam'}) menyentuh TP 1 sebelum stop loss; ${p2}% sampai TP 2. Impasnya 50% dan 33%, belum termasuk biaya. ${r.n < 30 ? 'Jumlah sinyalnya sedikit, jadi angka ini mudah berubah.' : ''}`;
+  }
+  return `<div class="rec"><div class="label" style="margin-bottom:4px">Rekam jejak sinyal di ${esc(a.name)}</div>${body}<div class="note" style="margin-top:6px">${TF_NOTE[a.tf]}</div></div>`;
+}
+
+const TF_LABEL = { '1m': '1 menit', '15m': '15 menit', '1h': '1 jam', '4h': '4 jam', '1d': 'Harian' };
+let mtf = { id: null, rows: {}, token: 0 };
+function renderMtf() {
+  const box = $('#mtf'); if (!box || !state.detail) return;
+  const a = state.detail;
+  if (mtf.id !== a.id) { mtf = { id: a.id, rows: {}, token: mtf.token + 1 }; }
+  mtf.rows[a.tf] = a;
+  box.innerHTML = Object.keys(TF_LABEL).map((tf) => {
+    const r = mtf.rows[tf];
+    const inner = r ? (r.error ? '<b class="muted">gagal</b>' : `<b class="${biasTone(r.score)}-t">${esc(r.bias)}</b>`) : (a.stream || mtf.asked ? '<b class="muted">…</b>' : '<b class="muted">klik untuk muat</b>');
+    return `<button data-mtf="${tf}" aria-pressed="${tf === a.tf}"><small>${TF_LABEL[tf]}</small>${inner}</button>`;
+  }).join('');
+  const done = Object.values(mtf.rows).filter((r) => !r.error);
+  const up = done.filter((r) => r.score >= 20).length, down = done.filter((r) => r.score <= -20).length;
+  $('#agree').innerHTML = done.length < 3 ? '' : up >= 4 ? `<span class="up-t">${up} dari ${done.length} timeframe searah naik.</span> Semua timeframe kompak; ini gambaran arah, bukan jaminan hasil.`
+    : down >= 4 ? `<span class="down-t">${down} dari ${done.length} timeframe searah turun.</span> Semua timeframe kompak; ini gambaran arah, bukan jaminan hasil.`
+    : `<span class="wait-t">Timeframe tidak searah</span> (${up} naik, ${down} turun). Hati-hati, arah belum kompak.`;
+  // Sumber gratis (Binance) dimuat otomatis; sumber berkuota hanya saat diminta.
+  if (a.stream && !mtf.loading) loadMtf();
+}
+async function loadMtf() {
+  const a = state.detail, token = mtf.token; if (!a) return;
+  mtf.loading = true; mtf.asked = true;
+  for (const tf of Object.keys(TF_LABEL)) {
+    if (mtf.rows[tf] && Date.now() - mtf.rows[tf].updated < 120000) continue;
+    try { const r = await api(`/api/analyze?id=${encodeURIComponent(a.id)}&tf=${tf}&lite=1`); if (token !== mtf.token) break; mtf.rows[tf] = r; }
+    catch (e) { if (token !== mtf.token) break; mtf.rows[tf] = { error: e.message, updated: Date.now() }; }
+  }
+  mtf.loading = false;
+  if (token === mtf.token) { const keepLoading = mtf.loading; mtf.loading = true; renderMtf(); mtf.loading = keepLoading; }
+}
+
+function updateCalc() {
+  const out = $('#calc-out'), a = state.detail; if (!out || !a || !a.plan) return;
+  const risk = parseFloat($('#calc-risk').value), contract = parseFloat($('#calc-contract').value);
+  if (!(risk > 0) || !(contract > 0)) { out.textContent = 'Isi risiko dan ukuran kontrak.'; return; }
+  const units = risk / a.plan.risk, lots = units / contract;
+  out.innerHTML = `Ukuran posisi: <b class="num">${lots >= 0.01 ? lots.toFixed(2) : lots.toPrecision(2)} lot</b> <span class="muted">(${units < 1 ? units.toPrecision(3) : fmt(units, 2)} unit). Berlaku untuk simbol berharga USD; cek ukuran kontrak di broker Anda.</span>`;
+}
+
+// ---------- Harga langsung (Binance) ----------
+let ws = null, wsKey = '', wsRetry = 0, wsTimer = null, liveSeries = null, cRefs = null, liveOff = 0, liveLastT = 0, chartKey = '', lastPx = {};
+function flash(el, up) { el.classList.remove('flash-up', 'flash-down'); void el.offsetWidth; el.classList.add(up ? 'flash-up' : 'flash-down'); setTimeout(() => el.classList.remove('flash-up', 'flash-down'), 250); }
+function updateLive(price) {
+  const a = state.detail, box = $('#livepl'); if (!a || !box || !a.plan) return;
+  const p = a.plan, dir = a.action === 'BUY' ? 1 : -1, d = a.dec;
+  const pnl = (price - p.entry) * dir, r = pnl / p.risk;
+  const st = (price - p.sl) * dir <= 0 ? '<b class="down-t">Stop loss sudah tersentuh sejak analisa terakhir.</b>' : (price - p.tp1) * dir >= 0 ? '<b class="up-t">TP 1 sudah tersentuh sejak analisa terakhir.</b>' : '';
+  box.innerHTML = `<span>Dari entry: <b class="${pnl >= 0 ? 'up-t' : 'down-t'}">${pnl >= 0 ? '+' : ''}${fmt(pnl, d)} (${r >= 0 ? '+' : ''}${r.toFixed(2)}R)</b></span><span>Ke TP 1: ${fmt(Math.abs(p.tp1 - price), d)}</span><span>Ke SL: ${fmt(Math.abs(price - p.sl), d)}</span>${st}`;
+}
+function setLive(on) { const el = $('#live'); if (!el) return; const a = state.detail; el.classList.toggle('on', !!(on && a && a.stream)); el.textContent = a && a.stream ? (on ? 'LIVE' : 'MENYAMBUNG') : 'TERTUNDA'; }
+function onStream(msg) {
+  const d = msg.data, a = state.detail; if (!d) return;
+  if (d.e === '24hrMiniTicker') {
+    const price = +d.c, chg = (price - +d.o) / +d.o * 100, up = price >= (lastPx[d.s] || price); const moved = price !== lastPx[d.s]; lastPx[d.s] = price;
+    document.querySelectorAll(`[data-px="${d.s}"]`).forEach((el) => { el.textContent = fmt(price, +el.dataset.dec); if (moved) flash(el, up); });
+    document.querySelectorAll(`[data-ch="${d.s}"]`).forEach((el) => { el.textContent = `${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%`; el.className = `ch num ${chg >= 0 ? 'up' : 'down'}`; });
+  } else if (d.e === 'kline' && a && a.stream === d.s && d.k.i === a.tf && liveSeries) {
+    const k = d.k, t = k.t / 1000, price = +k.c;
+    if (t >= liveLastT) { try { liveSeries.update({ time: t + liveOff, open: +k.o, high: +k.h, low: +k.l, close: price }); } catch {} liveLastT = t; }
+    const el = $('#px'); if (el) { const prev = parseFloat(el.dataset.v || a.price); el.textContent = fmt(price, a.dec); if (price !== prev) flash(el, price > prev); el.dataset.v = price; }
+    updateLive(price); setLive(true);
+    if (k.x) setTimeout(() => loadDetail(true), 800);   // candle selesai: hitung ulang analisa
+  }
+}
+function connectLive() {
+  const a = state.detail;
+  const syms = [...new Set(Object.values(state.rows).map((r) => r && r.stream).filter(Boolean))].sort();
+  const streams = syms.map((x) => x.toLowerCase() + '@miniTicker');
+  if (a && a.stream) streams.push(`${a.stream.toLowerCase()}@kline_${a.tf}`);
+  const key = streams.join('/');
+  if (key === wsKey && ws && ws.readyState <= 1) { setLive(ws.readyState === 1); return; }
+  wsKey = key; clearTimeout(wsTimer);
+  if (ws) { ws.onclose = null; try { ws.close(); } catch {} ws = null; }
+  if (!streams.length || !('WebSocket' in window)) { setLive(false); return; }
+  let sock;
+  try { sock = new WebSocket('wss://data-stream.binance.vision/stream?streams=' + key); } catch { return; }
+  ws = sock;
+  sock.onopen = () => { wsRetry = 0; setLive(true); };
+  sock.onmessage = (e) => { try { onStream(JSON.parse(e.data)); } catch {} };
+  sock.onclose = () => { if (ws !== sock) return; setLive(false); wsTimer = setTimeout(() => { wsKey = ''; connectLive(); }, Math.min(30000, 2000 * 2 ** wsRetry++)); };
+  sock.onerror = () => { try { sock.close(); } catch {} };
+}
+
 async function loadDetail(quiet) {
   const token = ++loadToken, it = state.items.find((i) => i.id === state.id);
   if (!quiet) $('#detail').innerHTML = `<div class="state"><b>Menganalisa ${esc(it ? it.name : '')}…</b>${it && it.needsKey ? 'Data Twelve Data dibatasi 8 permintaan per menit, jadi kadang perlu menunggu sebentar.' : ''}</div>`;
   try {
     const a = await api(`/api/analyze?id=${encodeURIComponent(state.id)}&tf=${state.tf}`);
     if (token !== loadToken) return;
+    if (quiet && document.activeElement && /^calc-/.test(document.activeElement.id)) return; // jangan ganggu saat mengetik
     state.detail = a; state.rows[a.id] = a;
     renderDetail(a); renderWatchlist();
   } catch (e) {
@@ -450,6 +608,19 @@ document.addEventListener('click', (e) => {
   if (e.target.id === 'open-key' || e.target.id === 'btn-settings') $('#dlg').showModal();
   if (e.target.id === 'dlg-close') $('#dlg').close();
   if (e.target.id === 'retry') loadDetail();
+  const m = e.target.closest('#mtf button');
+  if (m) {
+    if (m.dataset.mtf === state.tf) { if (!mtf.loading) loadMtf(); return; }
+    state.tf = m.dataset.mtf; store.set('tf', state.tf); state.rows = {};
+    setTf(); renderWatchlist(); loadDetail(); refreshWatchlist(); return;
+  }
+  if (e.target.id === 'copy-levels' && state.detail && state.detail.plan) {
+    const a = state.detail, p = a.plan, d = a.dec;
+    const text = `${a.name} ${a.action} | Entry ${fmt(p.entry, d)} | SL ${fmt(p.sl, d)} | TP1 ${fmt(p.tp1, d)} | TP2 ${fmt(p.tp2, d)} | TP3 ${fmt(p.tp3, d)}`;
+    const done = (ok) => { e.target.textContent = ok ? 'Tersalin' : 'Gagal menyalin'; setTimeout(() => { e.target.textContent = 'Salin level'; }, 1500); };
+    try { navigator.clipboard.writeText(text).then(() => done(true), () => done(false)); } catch { done(false); }
+    return;
+  }
   const nf = e.target.closest('#nf button');
   if (nf) { state.newsFilter = nf.dataset.nf; store.set('nf', state.newsFilter); renderNews(); }
 });
@@ -459,6 +630,10 @@ $('#key-form').addEventListener('submit', async (e) => {
   catch (err) { $('#key-state').textContent = err.message; return; }
   $('#key').value = ''; $('#dlg').close(); state.rows = {};
   await loadInstruments(); loadDetail(); refreshWatchlist();
+});
+document.addEventListener('input', (e) => {
+  if (e.target.id === 'calc-risk') { store.set('risk', e.target.value); updateCalc(); }
+  if (e.target.id === 'calc-contract' && state.detail) { store.set('contract-' + state.detail.type, e.target.value); updateCalc(); }
 });
 $('#add-type').addEventListener('change', setAddType);
 $('#add-form').addEventListener('submit', async (e) => {
