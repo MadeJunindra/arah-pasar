@@ -1,714 +1,301 @@
 <!doctype html>
 <html lang="id">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Arah Pasar</title>
-<style>
-/* Tata letak: daftar instrumen di kiri, satu keputusan besar (arah + sinyal) di atas grafik, alasan dan berita di bawah. */
-:root {
-  --bg: #0d1218; --panel: #141b24; --panel-2: #1a2330; --line: #263242;
-  --fg: #e6edf5; --muted: #8696aa; --accent: #5aa9ff;
-  --up: #1fbf8f; --down: #f0556a; --wait: #e2a93b;
-  --up-bg: rgba(31,191,143,.13); --down-bg: rgba(240,85,106,.13); --wait-bg: rgba(226,169,59,.13);
-  --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
-  color-scheme: dark;
-}
-* { box-sizing: border-box; }
-html, body { margin: 0; }
-body { background: var(--bg); color: var(--fg); font: 14px/1.5 var(--sans); }
-button, input, select { font: inherit; color: inherit; }
-button { cursor: pointer; }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
-.muted { color: var(--muted); }
-[hidden] { display: none !important; }
-
-header.top { position: sticky; top: 0; z-index: 5; background: var(--bg); display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 12px 20px; border-bottom: 1px solid var(--line); }
-.brand { font-size: 17px; font-weight: 700; letter-spacing: -.01em; margin-right: auto; }
-.brand span { color: var(--muted); font-weight: 400; font-size: 13px; margin-left: 8px; }
-.seg { display: flex; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 3px; }
-.seg button { border: 0; background: none; padding: 5px 12px; border-radius: 6px; color: var(--muted); }
-.seg button[aria-pressed="true"] { background: var(--panel-2); color: var(--fg); font-weight: 600; }
-.btn { border: 1px solid var(--line); background: var(--panel); padding: 6px 12px; border-radius: 8px; }
-.btn:hover { background: var(--panel-2); }
-.btn.primary { background: var(--accent); border-color: var(--accent); color: #06131f; font-weight: 600; }
-
-.layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); min-height: calc(100vh - 58px); }
-aside { border-right: 1px solid var(--line); padding: 12px; }
-main { padding: 20px; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
-
-.wl-head { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
-.wl { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
-.wl button { width: 100%; display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; text-align: left; border: 0; background: none; padding: 9px 8px; border-radius: 8px; }
-.wl button:hover { background: var(--panel); }
-.wl button[aria-current="true"] { background: var(--panel-2); }
-.wl .nm { font-weight: 600; }
-.wl .ds, .wl .ch { font-size: 12px; color: var(--muted); }
-.wl .px { text-align: right; }
-.wl .ch.up { color: var(--up); } .wl .ch.down { color: var(--down); }
-.wl .tags { grid-column: 1 / -1; display: flex; gap: 6px; align-items: center; min-height: 20px; font-size: 12px; color: var(--muted); }
-.pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: .03em; }
-.pill.up { background: var(--up-bg); color: var(--up); }
-.pill.down { background: var(--down-bg); color: var(--down); }
-.pill.wait { background: var(--wait-bg); color: var(--wait); }
-.add { display: grid; grid-template-columns: 1fr auto; gap: 6px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
-.add input, .add select, .field input { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; min-width: 0; }
-.add .btn { grid-column: 1 / -1; }
-.x { color: var(--muted); border: 0; background: none; padding: 0 4px; margin-left: auto; }
-
-.title-row { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-.title-row h1 { margin: 0; font-size: 24px; letter-spacing: -.02em; }
-.title-row .price { font-size: 22px; font-weight: 600; }
-.note { font-size: 12px; color: var(--muted); }
-.live { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: .06em; padding: 2px 9px; border-radius: 999px; background: var(--panel-2); color: var(--muted); align-self: center; }
-.live::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
-.live.on { background: var(--up-bg); color: var(--up); }
-.live.on::before { background: var(--up); animation: pulse 1.4s infinite; }
-@keyframes pulse { 50% { opacity: .25; } }
-.price, .wl .px { transition: color .5s; }
-.flash-up { color: var(--up) !important; transition: none !important; } .flash-down { color: var(--down) !important; transition: none !important; }
-.mtf { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-bottom: 16px; }
-.mtf button { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; text-align: left; min-width: 0; }
-.mtf button:hover { background: var(--panel-2); }
-.mtf button[aria-pressed="true"] { border-color: var(--accent); }
-.mtf small { display: block; color: var(--muted); font-size: 11px; margin-bottom: 3px; }
-.mtf b { font-size: 12px; overflow-wrap: anywhere; }
-.agree { margin: -8px 0 16px; font-size: 13px; }
-.livepl { display: flex; gap: 6px 18px; flex-wrap: wrap; margin-top: 10px; font-size: 13px; }
-.tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: end; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
-.tools label { display: flex; flex-direction: column; gap: 3px; font-size: 11px; color: var(--muted); }
-.tools input { width: 110px; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 5px 8px; }
-.tools output { font-size: 13px; flex: 1 1 180px; }
-.rec { margin-top: 12px; padding: 12px; border-radius: 10px; background: var(--bg); font-size: 13px; }
-.rec b.big { font-size: 20px; }
-.wl li.dim { opacity: .55; }
-@media (prefers-reduced-motion: reduce) { .live.on::before { animation: none; } }
-
-.verdict { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 16px; }
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; min-width: 0; }
-.label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
-.bias { font-size: 34px; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; margin: 4px 0 12px; }
-.up-t { color: var(--up); } .down-t { color: var(--down); } .wait-t { color: var(--wait); }
-.gauge { position: relative; height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--down), var(--panel-2) 45%, var(--panel-2) 55%, var(--up)); }
-.gauge i { position: absolute; top: -5px; width: 4px; height: 18px; border-radius: 2px; background: var(--fg); transform: translateX(-2px); }
-.gauge-l { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-top: 6px; }
-
-.sig { border-width: 1px; }
-.sig.up { border-color: var(--up); background: linear-gradient(180deg, var(--up-bg), var(--panel) 70%); }
-.sig.down { border-color: var(--down); background: linear-gradient(180deg, var(--down-bg), var(--panel) 70%); }
-.sig-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-.action { font-size: 34px; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; }
-.lv { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-top: 14px; }
-.lv div { background: var(--bg); border-radius: 8px; padding: 8px 10px; min-width: 0; }
-.lv b { display: block; font-size: 15px; font-weight: 600; overflow-wrap: anywhere; }
-.lv small { display: block; font-size: 11px; color: var(--muted); }
-.cautions { margin: 12px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
-.cautions li { background: var(--wait-bg); color: var(--wait); border-radius: 8px; padding: 7px 10px; font-size: 13px; }
-.cautions li.news { background: var(--down-bg); color: var(--down); font-weight: 600; }
-
-#chart { height: 420px; }
-.chart-card { padding: 10px 10px 4px; }
-.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted); padding: 2px 8px 8px; }
-.legend i { display: inline-block; width: 14px; height: 2px; vertical-align: middle; margin-right: 5px; }
-
-.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
-h2 { font-size: 15px; margin: 0 0 12px; }
-.factor { display: grid; grid-template-columns: 130px 1fr; gap: 4px 12px; padding: 9px 0; border-top: 1px solid var(--line); }
-.factor:first-of-type { border-top: 0; }
-.bar { position: relative; height: 6px; background: var(--panel-2); border-radius: 3px; align-self: center; }
-.bar::after { content: ""; position: absolute; left: 50%; top: -3px; height: 12px; width: 1px; background: var(--line); }
-.bar i { position: absolute; top: 0; height: 100%; border-radius: 3px; }
-.factor p { grid-column: 1 / -1; margin: 0; font-size: 13px; color: var(--muted); }
-.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
-.stats b { display: block; font-weight: 600; } .stats small { color: var(--muted); font-size: 11px; }
-
-.news-tools { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
-.news-tools h2 { margin: 0 auto 0 0; }
-.news-list { max-height: 420px; overflow-y: auto; }
-.day { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); padding: 10px 0 4px; position: sticky; top: 0; background: var(--panel); }
-.ev { display: grid; grid-template-columns: 46px 40px 1fr; gap: 8px; padding: 6px 0; border-top: 1px solid var(--line); align-items: baseline; }
-.ev.past { opacity: .45; }
-.ev.rel .cur { color: var(--accent); font-weight: 700; }
-.ev .ttl { min-width: 0; }
-.ev small { display: block; color: var(--muted); font-size: 12px; }
-.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
-.dot.High { background: var(--down); } .dot.Medium { background: var(--wait); } .dot.Low { background: var(--muted); } .dot.Holiday { background: var(--line); }
-.soon { color: var(--wait); font-weight: 600; }
-
-.state { padding: 60px 20px; text-align: center; color: var(--muted); }
-.state b { color: var(--fg); display: block; font-size: 16px; margin-bottom: 6px; }
-footer { font-size: 12px; color: var(--muted); padding-top: 4px; }
-
-#login { position: fixed; inset: 0; z-index: 50; background: var(--bg); display: grid; place-items: center; padding: 24px max(16px, env(safe-area-inset-left, 0px)); }
-#login form { width: min(360px, 100%); display: flex; flex-direction: column; gap: 14px; }
-#login h1 { margin: 0; font-size: 26px; letter-spacing: -.02em; }
-#login .field { margin: 0; }
-#login .field input { padding: 9px 12px; }
-#login-msg { min-height: 20px; font-size: 13px; color: var(--wait); }
-#who { font-size: 13px; color: var(--muted); }
-dialog { background: var(--panel); color: var(--fg); border: 1px solid var(--line); border-radius: 12px; padding: 22px; width: min(480px, calc(100vw - 32px)); }
-dialog::backdrop { background: rgba(0,0,0,.6); }
-dialog h2 { font-size: 17px; }
-dialog ol { padding-left: 18px; color: var(--muted); }
-dialog a { color: var(--accent); }
-.field { display: flex; flex-direction: column; gap: 6px; margin: 14px 0; }
-.field input { width: 100%; }
-.row { display: flex; gap: 8px; justify-content: flex-end; }
-
-@media (max-width: 900px) {
-  .layout { grid-template-columns: minmax(0, 1fr); }
-  aside { border-right: 0; border-bottom: 1px solid var(--line); }
-  .wl { flex-direction: row; overflow-x: auto; padding-bottom: 6px; }
-  .wl li { flex: 0 0 170px; }
-  .verdict, .two { grid-template-columns: minmax(0, 1fr); }
-  main { padding: 16px; }
-  .lv { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .mtf { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  #chart { height: 320px; }
-  .bias, .action { font-size: 28px; }
-}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Catatan Keuangan</title>
+  <meta name="description" content="Catat pemasukan, pengeluaran, dan tabungan di beberapa rekening. Bisa dipakai offline.">
+  <meta name="theme-color" content="#f6f5f1" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0b100f" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Keuangan">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="preload" href="fonts/plus-jakarta-sans.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header class="top">
-  <div class="brand">Arah Pasar<span>analisa teknikal + kalender Forex Factory</span></div>
-  <div class="seg" id="tfs" role="group" aria-label="Timeframe">
-    <button data-tf="1m">1 menit</button><button data-tf="15m">15 menit</button><button data-tf="1h">1 jam</button><button data-tf="4h">4 jam</button><button data-tf="1d">Harian</button>
-  </div>
-  <button class="btn" id="btn-settings">Pengaturan</button>
-  <span id="who" hidden></span><button class="btn" id="btn-logout" type="button" hidden>Keluar</button>
-</header>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-in" viewBox="0 0 24 24"><path d="M17 7 7 17M7 9v8h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-out" viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-transfer" viewBox="0 0 24 24"><path d="M4 8h14l-3-3M20 16H6l3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-split" viewBox="0 0 24 24"><path d="M12 3v6m0 0-6 6v6m6-12 6 6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4M6.6 6.6C3.8 8.4 2 12 2 12s3.5 7 10 7c1.8 0 3.3-.5 4.6-1.2M9.9 9.9a3 3 0 0 0 4.2 4.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-chev-l" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chev-r" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  </svg>
 
-<div class="layout">
-  <aside>
-    <div class="wl-head"><span>Instrumen</span><span id="wl-status"></span></div>
-    <ul class="wl" id="wl"></ul>
-    <form class="add" id="add-form">
-      <input id="add-symbol" placeholder="Cari kode, mis. BBCA" aria-label="Simbol" list="idx-list" autocomplete="off" required>
-      <datalist id="idx-list"></datalist>
-      <select id="add-type" aria-label="Jenis"><option value="idx">Saham Indonesia</option><option value="stock">Saham AS</option><option value="crypto">Kripto</option><option value="forex">Forex</option></select>
-      <button class="btn" type="submit">Tambah ke daftar</button>
-      <div class="note" id="add-msg" style="grid-column:1/-1"></div>
-    </form>
-  </aside>
+  <header class="topbar">
+    <div class="brand">
+      <img src="icons/icon-192.png" alt="" width="32" height="32">
+      <button id="nameBtn" class="name-btn" aria-label="Ubah nama">
+        <small id="greeting">Halo 👋</small>
+        <h1><span id="userName">Keuangan</span><svg class="pencil" aria-hidden="true"><use href="#i-pencil"/></svg></h1>
+      </button>
+    </div>
+    <div class="top-actions">
+      <button id="installBtn" class="btn-pill" hidden>Pasang</button>
+      <button id="privacyBtn" class="icon-btn" aria-label="Sembunyikan nominal" aria-pressed="false">
+        <svg><use href="#i-eye"/></svg>
+      </button>
+    </div>
+  </header>
 
   <main>
-    <div id="detail"><div class="state"><b>Memuat data pasar…</b></div></div>
-    <footer>Aplikasi ini alat bantu analisa, bukan nasihat keuangan. Sinyal dihitung dari indikator teknikal dan bisa salah. Selalu pakai stop loss dan atur ukuran posisi sesuai risiko yang sanggup Anda tanggung.</footer>
+    <section class="hero reveal">
+      <div class="hero-glow" aria-hidden="true"></div>
+      <small>Total saldo semua rekening</small>
+      <strong id="totalBalance" class="money-val">Rp0</strong>
+      <div class="hero-foot">
+        <span><i class="dot-in"></i>Masuk bulan ini <b id="heroIn">Rp0</b></span>
+        <span><i class="dot-out"></i>Keluar <b id="heroOut">Rp0</b></span>
+      </div>
+    </section>
+
+    <nav class="quick reveal" aria-label="Aksi cepat">
+      <button data-quick="in"><span class="q-ico in"><svg><use href="#i-in"/></svg></span>Masuk</button>
+      <button data-quick="out"><span class="q-ico out"><svg><use href="#i-out"/></svg></span>Keluar</button>
+      <button data-quick="transfer"><span class="q-ico tr"><svg><use href="#i-transfer"/></svg></span>Transfer</button>
+      <button id="splitBtn"><span class="q-ico split"><svg><use href="#i-split"/></svg></span>Bagi gaji</button>
+    </nav>
+
+    <section class="block reveal">
+      <div class="block-head">
+        <h2>Rekening</h2>
+        <button id="addAccountBtn" class="link-btn">+ Tambah</button>
+      </div>
+      <div id="accounts" class="accounts"></div>
+    </section>
+
+    <section class="block reveal">
+      <div class="block-head">
+        <h2>Ringkasan</h2>
+        <div class="month-nav">
+          <button id="prevMonth" class="icon-btn sm" aria-label="Bulan sebelumnya"><svg><use href="#i-chev-l"/></svg></button>
+          <span id="monthLabel"></span>
+          <button id="nextMonth" class="icon-btn sm" aria-label="Bulan berikutnya"><svg><use href="#i-chev-r"/></svg></button>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat in"><small>Pemasukan</small><strong id="totalIn" class="money-val">Rp0</strong></div>
+        <div class="stat out"><small>Pengeluaran</small><strong id="totalOut" class="money-val">Rp0</strong></div>
+        <div class="stat net"><small>Selisih <span class="muted">· transfer antar rekening tidak dihitung</span></small><strong id="net" class="money-val">Rp0</strong></div>
+      </div>
+    </section>
+
+    <section class="panel reveal">
+      <div class="block-head">
+        <h2>Pemasukan per sumber</h2>
+        <button id="addSourceBtn" class="link-btn">+ Sumber</button>
+      </div>
+      <div id="sources"></div>
+    </section>
+
+    <section class="panel reveal">
+      <div class="block-head"><h2>Pengeluaran per kategori</h2></div>
+      <div id="breakdown"></div>
+    </section>
+
+    <section class="panel reveal">
+      <div class="block-head">
+        <h2>Transaksi</h2>
+      </div>
+      <label class="search">
+        <svg><use href="#i-search"/></svg>
+        <input id="search" type="search" placeholder="Cari transaksi…" aria-label="Cari transaksi">
+      </label>
+      <div id="chips" class="chips" role="tablist" aria-label="Filter rekening"></div>
+      <ul id="list"></ul>
+      <div id="empty" class="empty">
+        <div class="empty-art" aria-hidden="true">🪙</div>
+        <p id="emptyText">Belum ada transaksi bulan ini.</p>
+      </div>
+    </section>
+
+    <section class="panel reveal">
+      <div class="block-head"><h2>Data & cadangan</h2></div>
+      <p class="muted small">Data tersimpan di perangkat ini. Ekspor untuk cadangan atau pindah perangkat.</p>
+      <div class="row">
+        <button id="exportBtn" class="btn-ghost">Ekspor JSON</button>
+        <button id="exportCsvBtn" class="btn-ghost">Ekspor CSV</button>
+        <label class="btn-ghost file">Impor JSON<input id="importFile" type="file" accept="application/json" hidden></label>
+      </div>
+      <div class="version-row">
+        <span class="muted small">Versi aplikasi <b id="appVersion"></b></span>
+        <button id="checkUpdateBtn" class="link-btn">Cek pembaruan</button>
+      </div>
+    </section>
   </main>
-</div>
 
-<div id="login" hidden>
-  <form id="login-form">
-    <div><h1>Arah Pasar</h1><p class="muted" style="margin:6px 0 0">Masuk dengan akun yang diberikan pemilik aplikasi.</p></div>
-    <label class="field">Nama pengguna<input id="login-user" autocomplete="username" autocapitalize="none" required></label>
-    <label class="field">Kata sandi<input id="login-pass" type="password" autocomplete="current-password" required></label>
-    <div id="login-msg" role="status"></div>
-    <button class="btn primary" type="submit" id="login-btn">Masuk</button>
-    <p class="note" style="margin:0">Satu akun hanya bisa aktif di satu perangkat. Masuk di perangkat lain akan mengeluarkan sesi yang lama.</p>
-  </form>
-</div>
+  <button id="addBtn" class="fab" aria-label="Tambah transaksi"><svg><use href="#i-plus"/></svg></button>
 
-<dialog id="dlg">
-  <h2>API key Twelve Data</h2>
-  <p class="muted">Kripto langsung jalan tanpa key. Untuk XAU/USD asli, forex, dan saham, aplikasi butuh API key gratis dari Twelve Data.</p>
-  <ol>
-    <li>Buka <a href="https://twelvedata.com/pricing" target="_blank" rel="noopener">twelvedata.com</a> dan daftar paket Basic (gratis).</li>
-    <li>Salin API key dari dasbor Anda.</li>
-    <li>Tempel di bawah lalu simpan.</li>
-  </ol>
-  <form id="key-form">
-    <label class="field">API key<input id="key" autocomplete="off" placeholder="Kosongkan untuk menghapus key"></label>
-    <p class="note" id="key-state"></p>
-    <div class="row"><button class="btn" type="button" id="dlg-close">Tutup</button><button class="btn primary" type="submit">Simpan</button></div>
-  </form>
-</dialog>
-
-<script src="vendor/lightweight-charts.standalone.production.js"></script>
-<script>
-'use strict';
-const $ = (s) => document.querySelector(s);
-const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const store = { get(k, d) { try { return localStorage.getItem(k) ?? d; } catch { return d; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
-
-const state = { tf: store.get('tf', '1h'), id: store.get('id', 'xauusd'), items: [], hasKey: false, rows: {}, news: [], newsFilter: store.get('nf', 'hm'), detail: null };
-let chart = null, loadToken = 0, idxNames = new Map();
-
-// Simbol tambahan disimpan di browser ini, jadi tetap bisa dipakai pada versi online.
-function customList() { try { const v = JSON.parse(store.get('custom', '[]')); return Array.isArray(v) ? v : []; } catch { return []; } }
-const ADD_HINT = {
-  idx: ['Cari kode, mis. BBCA', 'Ketik kode atau nama emiten. Data saham Indonesia butuh paket Pro Twelve Data.'],
-  stock: ['Kode saham AS, mis. MSFT', 'Saham AS butuh API key gratis Twelve Data.'],
-  crypto: ['Pasangan Binance, mis. DOGEUSDT', 'Kripto memakai format Binance dan tidak butuh API key.'],
-  forex: ['Pasangan, mis. AUD/USD', 'Forex butuh API key gratis Twelve Data.'],
-};
-function setAddType() {
-  const t = $('#add-type').value;
-  $('#add-symbol').placeholder = ADD_HINT[t][0]; $('#add-msg').textContent = ADD_HINT[t][1];
-  if (t === 'idx') $('#add-symbol').setAttribute('list', 'idx-list'); else $('#add-symbol').removeAttribute('list');
-}
-async function loadIdx() {
-  try {
-    const rows = await api('/api/idx');
-    idxNames = new Map(rows);
-    $('#idx-list').innerHTML = rows.map(([c, n]) => `<option value="${esc(c)}">${esc(n)}</option>`).join('');
-  } catch {}
-}
-
-const fmt = (v, d) => v == null ? '–' : Number(v).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
-const tone = (a) => a.action === 'BUY' ? 'up' : a.action === 'SELL' ? 'down' : 'wait';
-const biasTone = (s) => s >= 20 ? 'up' : s <= -20 ? 'down' : 'wait';
-const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-
-async function api(path, opts) {
-  if (state.authLost) throw new Error('Sesi berakhir.');
-  const res = await fetch(path, opts);
-  const body = await res.json().catch(() => ({ error: 'Server tidak menjawab dengan benar.' }));
-  if (res.status === 401 && body.code) { showLogin(body.error); throw new Error(body.error); }
-  if (!res.ok || body.error) throw new Error(body.error || 'Permintaan gagal.');
-  return body;
-}
-
-// ---------- Daftar instrumen ----------
-function renderWatchlist() {
-  $('#wl').innerHTML = state.items.map((it) => {
-    const r = state.rows[it.id];
-    let px = '', ch = '', tags = '<span>memuat…</span>';
-    if (r && r.error) tags = `<span>${esc(it.needsKey && !state.hasKey ? 'Butuh API key' : r.error)}</span>`;
-    else if (r) {
-      px = fmt(r.price, r.dec);
-      ch = `<span data-ch="${esc(r.stream || '')}" class="ch num ${r.change24h >= 0 ? 'up' : 'down'}">${r.change24h >= 0 ? '+' : ''}${r.change24h.toFixed(2)}%</span>`;
-      tags = `<span class="pill ${biasTone(r.score)}">${esc(r.bias)}</span><span class="pill ${tone(r)}">${esc(r.action)}</span>${r.news.danger ? '<span title="Berita berdampak tinggi sebentar lagi">⚠ berita</span>' : ''}`;
-    }
-    return `<li class="${r && r.error ? 'dim' : ''}"><button data-id="${esc(it.id)}" aria-current="${it.id === state.id}">
-      <span class="nm">${esc(it.name)}</span><span class="px num" data-px="${esc(r && r.stream || '')}" data-dec="${r && r.dec != null ? r.dec : 2}">${px}</span>
-      <span class="ds">${esc(it.desc)}</span>${ch || '<span></span>'}
-      <span class="tags">${tags}${it.custom ? `<span class="x" data-del="${esc(it.id)}" title="Hapus dari daftar" role="button">✕</span>` : ''}</span>
-    </button></li>`;
-  }).join('');
-}
-
-async function refreshWatchlist() {
-  const tf = state.tf;
-  $('#wl-status').textContent = 'memperbarui…';
-  // Instrumen tanpa key dimuat lebih dulu; sisanya antre mengikuti batas Twelve Data.
-  const order = [...state.items].sort((a, b) => a.needsKey - b.needsKey);
-  for (const it of order) {
-    if (tf !== state.tf) return;
-    try { state.rows[it.id] = await api(`/api/analyze?id=${encodeURIComponent(it.id)}&tf=${tf}&lite=1`); }
-    catch (e) { state.rows[it.id] = { error: e.message }; }
-    renderWatchlist();
-  }
-  connectLive();
-  $('#wl-status').textContent = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-}
-
-// ---------- Detail ----------
-function renderDetail(a) {
-  const d = a.dec, bt = biasTone(a.score), t = tone(a), p = a.plan;
-  const cautions = [];
-  if (a.news.danger) {
-    const mins = Math.round((a.news.danger.t - Date.now()) / 60000);
-    cautions.push(`<li class="news">Berita berdampak tinggi: ${esc(a.news.danger.cur)} ${esc(a.news.danger.title)} ${mins > 0 ? `dalam ${mins >= 60 ? Math.floor(mins / 60) + ' jam ' + (mins % 60) + ' menit' : mins + ' menit'}` : 'baru saja rilis'}. Hindari entry 30 menit sebelum dan sesudah rilis.</li>`);
-  }
-  a.cautions.forEach((c) => cautions.push(`<li>${esc(c)}</li>`));
-
-  const signal = p ? `
-      <div class="sig-head"><div class="action ${t}-t">${a.action}</div><div class="muted">keyakinan <b class="num">${a.confidence}%</b></div></div>
-      <div class="lv num">
-        <div><small>Entry</small><b>${fmt(p.entry, d)}</b></div>
-        <div><small>Stop loss</small><b class="down-t">${fmt(p.sl, d)}</b></div>
-        <div><small>TP 1 (1:1)</small><b class="up-t">${fmt(p.tp1, d)}</b></div>
-        <div><small>TP 2 (1:2)</small><b class="up-t">${fmt(p.tp2, d)}</b></div>
-        <div><small>TP 3 (1:3)</small><b class="up-t">${fmt(p.tp3, d)}</b></div>
+  <!-- Nama pengguna -->
+  <dialog id="nameDialog" class="sheet">
+    <form id="nameForm" method="dialog" class="sheet-form">
+      <div class="grabber" aria-hidden="true"></div>
+      <div class="welcome-art" aria-hidden="true">👋</div>
+      <h2 id="nameTitle" class="center">Selamat datang!</h2>
+      <p id="nameHint" class="muted small center">Siapa nama kamu? Nama ini dipakai untuk menyapa kamu di aplikasi dan hanya tersimpan di HP ini.</p>
+      <label><span class="sr-only">Nama</span>
+        <input id="nameInput" maxlength="24" autocomplete="given-name" autocapitalize="words" placeholder="Nama panggilan kamu">
+      </label>
+      <div class="row end">
+        <button type="button" id="nameSkip" class="btn-ghost">Lewati</button>
+        <span class="spacer"></span>
+        <button type="submit" class="btn-primary" id="nameSubmit">Mulai</button>
       </div>
-      <div class="livepl num" id="livepl"></div>
-      <p class="note" style="margin:10px 0 0">Stop loss ${esc(p.slBasis)}, jarak ${fmt(p.risk, d)}. Setelah TP 1 kena, geser stop loss ke harga entry.</p>
-      <div class="tools">
-        <label>Risiko per posisi (USD)<input id="calc-risk" type="number" min="0" step="1" value="${esc(store.get('risk', '10'))}"></label>
-        <label>Ukuran kontrak 1 lot<input id="calc-contract" type="number" min="0" step="any" value="${esc(store.get('contract-' + a.type, a.type === 'metal' ? '100' : a.type === 'forex' ? '100000' : '1'))}"></label>
-        <output id="calc-out"></output>
-        <button class="btn" id="copy-levels" type="button">Salin level</button>
-      </div>` : `
-      <div class="sig-head"><div class="action wait-t">TUNGGU</div></div>
-      <p style="margin:8px 0 0">${esc(a.whyWait)}</p>
-      <div class="lv num" style="grid-template-columns:repeat(2,minmax(0,1fr))">
-        <div><small>BUY jika tembus ke atas</small><b class="up-t">${fmt(a.resistance, d)}</b></div>
-        <div><small>SELL jika tembus ke bawah</small><b class="down-t">${fmt(a.support, d)}</b></div>
-      </div>`;
+    </form>
+  </dialog>
 
-  const factors = a.factors.map((f) => {
-    const w = Math.abs(f.value) * 50, col = f.value >= 0 ? 'var(--up)' : 'var(--down)';
-    return `<div class="factor"><b>${esc(f.name)}</b><div class="bar"><i style="width:${w}%;${f.value >= 0 ? 'left:50%' : `right:50%`};background:${col}"></i></div><p>${esc(f.text)}</p></div>`;
-  }).join('');
-  const I = a.indicators;
-
-  const keepEl = chart && chartKey === a.id + a.tf ? $('#chart') : null;
-  $('#detail').innerHTML = `
-    <div class="title-row">
-      <h1>${esc(a.name)}</h1><span class="price num" id="px">${fmt(a.price, d)}</span>
-      <span class="num ${a.change24h >= 0 ? 'up-t' : 'down-t'}">${a.change24h >= 0 ? '+' : ''}${a.change24h.toFixed(2)}% (${a.changeHours} jam)</span>
-      <span class="live" id="live">${a.stream ? 'MENYAMBUNG' : 'TERTUNDA'}</span>
-    </div>
-    <div class="note" style="margin:2px 0 14px">Sumber harga: ${esc(a.source)}${a.proxy ? ` — memakai ${esc(a.proxy)}. Isi API key di Pengaturan untuk harga XAU/USD asli.` : ''} · analisa diperbarui ${new Date(a.updated).toLocaleTimeString('id-ID')}</div>
-    <div class="mtf" id="mtf"></div>
-    <div class="agree" id="agree"></div>
-
-    <div class="verdict">
-      <div class="card">
-        <div class="label">Arah pasar</div>
-        <div class="bias ${bt}-t">${esc(a.bias)}</div>
-        <div class="gauge"><i style="left:${(a.score + 100) / 2}%"></i></div>
-        <div class="gauge-l"><span>Bearish</span><span class="num">skor ${a.score > 0 ? '+' : ''}${a.score}</span><span>Bullish</span></div>
+  <!-- Form transaksi -->
+  <dialog id="dialog" class="sheet">
+    <form id="form" method="dialog" class="sheet-form">
+      <div class="grabber" aria-hidden="true"></div>
+      <h2 id="formTitle">Tambah transaksi</h2>
+      <div class="toggle three">
+        <label><input type="radio" name="type" value="out" checked><span>Keluar</span></label>
+        <label><input type="radio" name="type" value="in"><span>Masuk</span></label>
+        <label><input type="radio" name="type" value="transfer"><span>Transfer</span></label>
       </div>
-      <div class="card sig ${p ? t : ''}">
-        <div class="label">Saran posisi</div>
-        ${signal}
-        ${cautions.length ? `<ul class="cautions">${cautions.join('')}</ul>` : ''}
+      <label class="amount-field">
+        <span class="sr-only">Jumlah</span>
+        <span class="cur">Rp</span>
+        <input id="amount" name="amount" inputmode="numeric" autocomplete="off" required placeholder="0">
+      </label>
+      <label><span id="accountLabel">Dari rekening</span>
+        <select id="account" name="account"></select>
+      </label>
+      <label id="toWrap" hidden>Ke rekening
+        <select id="toAccount" name="to"></select>
+      </label>
+      <label id="categoryWrap"><span id="categoryLabel">Kategori</span>
+        <select id="category" name="category"></select>
+      </label>
+      <div class="two">
+        <label>Tanggal
+          <input id="date" name="date" type="date" required>
+        </label>
+        <label>Catatan
+          <input id="note" autocomplete="off" name="note" maxlength="100" placeholder="opsional">
+        </label>
       </div>
-    </div>
-
-    <div class="card chart-card" style="margin-top:16px">
-      <div class="legend"><span><i style="background:var(--accent)"></i>EMA 20</span><span><i style="background:var(--wait)"></i>EMA 50</span><span><i style="background:#b48cf2"></i>EMA 200</span><span>Garis putus-putus: entry, stop loss, target</span></div>
-      <div id="chart"></div>
-    </div>
-
-    <div class="two" style="margin-top:16px">
-      <div class="card">
-        <h2>Kenapa ${esc(a.bias.toLowerCase())}?</h2>
-        ${factors}
-        <div class="stats num">
-          <div><small>RSI 14</small><b>${fmt(I.rsi, 0)}</b></div>
-          <div><small>ADX 14</small><b>${fmt(I.adx, 0)}</b></div>
-          <div><small>Support</small><b>${fmt(a.support, d)}</b></div>
-          <div><small>Resistance</small><b>${fmt(a.resistance, d)}</b></div>
-        </div>
-        ${recordHtml(a)}
+      <div class="row end">
+        <button type="button" id="deleteBtn" class="btn-danger" hidden>Hapus</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn-ghost" data-close>Batal</button>
+        <button type="submit" class="btn-primary">Simpan</button>
       </div>
-      <div class="card">
-        <div class="news-tools">
-          <h2>Kalender Forex Factory</h2>
-          <div class="seg" id="nf"><button data-nf="h">Tinggi</button><button data-nf="hm">Tinggi + sedang</button><button data-nf="all">Semua</button></div>
-        </div>
-        <div class="news-list" id="news"></div>
+    </form>
+  </dialog>
+
+  <!-- Form rekening -->
+  <dialog id="accDialog" class="sheet">
+    <form id="accForm" method="dialog" class="sheet-form">
+      <div class="grabber" aria-hidden="true"></div>
+      <h2 id="accTitle">Tambah rekening</h2>
+      <label>Nama / tujuan
+        <input id="accName" autocomplete="off" required maxlength="40" placeholder="mis. Dana Darurat">
+      </label>
+      <div class="two">
+        <label>Bank
+          <input id="accBank" autocomplete="off" maxlength="40" placeholder="mis. BCA">
+        </label>
+        <label>Saldo awal (Rp)
+          <input id="accInitial" inputmode="numeric" class="money" placeholder="0">
+        </label>
       </div>
-    </div>`;
-  drawChart(a, keepEl);
-  renderNews(); renderMtf(); updateCalc(); updateLive(a.price); connectLive();
-}
+      <label>Keterangan
+        <input id="accPurpose" autocomplete="off" maxlength="80" placeholder="opsional">
+      </label>
+      <div class="two">
+        <label>Target tabungan
+          <input id="accTarget" inputmode="numeric" class="money" placeholder="tidak ada">
+        </label>
+        <label>Setoran / bulan
+          <input id="accMonthly" inputmode="numeric" class="money" placeholder="0">
+        </label>
+      </div>
+      <label class="check"><input id="accPayroll" type="checkbox"><span>Rekening payroll (tempat gaji masuk)</span></label>
+      <div>
+        <small class="muted">Warna</small>
+        <div class="colors" id="accColors"></div>
+      </div>
+      <div class="row end">
+        <button type="button" id="accDeleteBtn" class="btn-danger" hidden>Hapus</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn-ghost" data-close>Batal</button>
+        <button type="submit" class="btn-primary">Simpan</button>
+      </div>
+    </form>
+  </dialog>
 
-function drawChart(a, keepEl) {
-  const key = a.id + a.tf;
-  const off = -new Date().getTimezoneOffset() * 60; // tampilkan waktu lokal
-  const candles = a.candles.map((k) => ({ time: k.t + off, open: k.o, high: k.h, low: k.l, close: k.c }));
-  const emaData = (name) => a.candles.map((k, i) => ({ time: k.t + off, value: a.series[name][i] })).filter((p) => p.value != null);
-  const EMAS = [['ema20', css('--accent')], ['ema50', css('--wait')], ['ema200', '#b48cf2']];
+  <!-- Sumber pemasukan -->
+  <dialog id="srcDialog" class="sheet">
+    <form id="srcForm" method="dialog" class="sheet-form">
+      <div class="grabber" aria-hidden="true"></div>
+      <h2 id="srcTitle">Tambah sumber pemasukan</h2>
+      <div class="src-name-row">
+        <label class="icon-label">Ikon
+          <input id="srcIcon" autocomplete="off" maxlength="4" class="icon-input">
+        </label>
+        <label>Nama sumber
+          <input id="srcName" autocomplete="off" required maxlength="40" placeholder="mis. Kerja Sampingan">
+        </label>
+      </div>
+      <div class="icon-pick" id="srcIcons">
+        <button type="button">💻</button><button type="button">🎨</button><button type="button">📦</button><button type="button">🛵</button>
+        <button type="button">📸</button><button type="button">🧑‍🏫</button><button type="button">🍰</button><button type="button">📈</button>
+        <button type="button">🏠</button><button type="button">💵</button>
+      </div>
+      <label>Biasanya masuk ke rekening
+        <select id="srcAccount"></select>
+      </label>
+      <div class="row end">
+        <button type="button" id="srcDeleteBtn" class="btn-danger" hidden>Hapus</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn-ghost" data-close>Batal</button>
+        <button type="submit" class="btn-primary">Simpan</button>
+      </div>
+    </form>
+  </dialog>
 
-  if (keepEl && chart && chartKey === key) {
-    // Pembaruan rutin: grafik yang sama dipakai lagi, jadi zoom dan geseran pengguna tidak berubah.
-    $('#chart').replaceWith(keepEl);
-    cRefs.cs.setData(candles);
-    EMAS.forEach(([name], i) => cRefs.emas[i].setData(emaData(name)));
-    cRefs.lines.forEach((l) => { try { cRefs.cs.removePriceLine(l); } catch {} });
-  } else {
-    if (chart) { chart.remove(); chart = null; }
-    chartKey = key;
-    chart = LightweightCharts.createChart($('#chart'), {
-      autoSize: true,
-      layout: { background: { color: 'transparent' }, textColor: css('--muted'), fontFamily: css('--sans') },
-      grid: { vertLines: { color: 'rgba(38,50,66,.5)' }, horzLines: { color: 'rgba(38,50,66,.5)' } },
-      rightPriceScale: { borderColor: css('--line') },
-      timeScale: { borderColor: css('--line'), timeVisible: a.tf !== '1d', secondsVisible: false },
-      crosshair: { mode: 0 },
-    });
-    const pf = { type: 'price', precision: a.dec, minMove: 1 / 10 ** a.dec };
-    const cs = chart.addCandlestickSeries({ upColor: css('--up'), downColor: css('--down'), wickUpColor: css('--up'), wickDownColor: css('--down'), borderVisible: false, priceFormat: pf });
-    cs.setData(candles);
-    const emas = EMAS.map(([name, color]) => {
-      const s = chart.addLineSeries({ color, lineWidth: 1, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false, priceFormat: pf });
-      s.setData(emaData(name));
-      return s;
-    });
-    cRefs = { cs, emas, lines: [] };
-    chart.timeScale().setVisibleLogicalRange({ from: a.candles.length - 140, to: a.candles.length + 8 });
-  }
-  const cs = cRefs.cs;
-  liveSeries = cs; liveOff = off; liveLastT = a.candles[a.candles.length - 1].t;
-  cRefs.lines = [];
-  const line = (price, title, color, style = 2) => { if (price != null) cRefs.lines.push(cs.createPriceLine({ price, title, color, lineWidth: 1, lineStyle: style, axisLabelVisible: true })); };
-  if (a.plan) {
-    line(a.plan.entry, 'Entry', css('--fg'));
-    line(a.plan.sl, 'SL', css('--down'));
-    line(a.plan.tp1, 'TP1', css('--up')); line(a.plan.tp2, 'TP2', css('--up')); line(a.plan.tp3, 'TP3', css('--up'));
-  } else {
-    line(a.resistance, 'Resistance', css('--muted'), 1); line(a.support, 'Support', css('--muted'), 1);
-  }
-}
+  <!-- Bagi gaji -->
+  <dialog id="splitDialog" class="sheet">
+    <form id="splitForm" method="dialog" class="sheet-form">
+      <div class="grabber" aria-hidden="true"></div>
+      <h2>Bagi gaji</h2>
+      <p class="muted small">Pindahkan uang dari rekening payroll ke rekening tabungan. Setiap baris dicatat sebagai transfer.</p>
+      <div class="two">
+        <label>Dari rekening
+          <select id="splitFrom"></select>
+        </label>
+        <label>Tanggal
+          <input id="splitDate" type="date" required>
+        </label>
+      </div>
+      <p class="muted small" id="splitAvail"></p>
+      <div id="splitRows"></div>
+      <p class="split-total">Total dipindahkan <b id="splitTotal">Rp0</b></p>
+      <div class="row end">
+        <span class="spacer"></span>
+        <button type="button" class="btn-ghost" data-close>Batal</button>
+        <button type="submit" class="btn-primary">Simpan transfer</button>
+      </div>
+    </form>
+  </dialog>
 
-function renderNews() {
-  const box = $('#news');
-  if (!box) return;
-  document.querySelectorAll('#nf button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.nf === state.newsFilter));
-  const inst = state.detail, rel = new Set((inst ? inst.news.relevant : []).map((e) => e.t + e.title));
-  const want = state.newsFilter === 'h' ? ['High'] : state.newsFilter === 'hm' ? ['High', 'Medium'] : ['High', 'Medium', 'Low', 'Holiday'];
-  const now = Date.now();
-  const list = state.news.filter((e) => want.includes(e.impact));
-  if (!list.length) { box.innerHTML = `<div class="state">${esc(state.newsError || 'Tidak ada berita untuk filter ini.')}</div>`; return; }
-  let html = '', day = '';
-  for (const e of list) {
-    const dt = new Date(e.t), dk = dt.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short' });
-    if (dk !== day) { day = dk; html += `<div class="day">${esc(dk)}</div>`; }
-    const mins = Math.round((e.t - now) / 60000);
-    const soon = mins > 0 && mins <= 240 ? `<span class="soon"> · ${mins >= 60 ? Math.floor(mins / 60) + 'j ' + (mins % 60) + 'm' : mins + 'm'} lagi</span>` : '';
-    const fp = [e.forecast && `perkiraan ${esc(e.forecast)}`, e.previous && `sebelumnya ${esc(e.previous)}`].filter(Boolean).join(' · ');
-    html += `<div class="ev ${e.t < now ? 'past' : ''} ${rel.has(e.t + e.title) ? 'rel' : ''}">
-      <span class="num">${dt.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span><span class="cur">${esc(e.cur)}</span>
-      <span class="ttl"><span class="dot ${esc(e.impact)}" title="Dampak ${esc(e.impact)}"></span>${esc(e.title)}${soon}${fp ? `<small>${fp}</small>` : ''}</span></div>`;
-  }
-  box.innerHTML = html;
-  const next = box.querySelector('.ev:not(.past)');
-  if (next) box.scrollTop = Math.max(0, next.offsetTop - box.offsetTop - 60);
-}
+  <div id="updateBar" class="update-bar" hidden>
+    <span>✨ Versi baru tersedia</span>
+    <button id="updateBtn" class="btn-primary">Perbarui</button>
+  </div>
 
-// ---------- Rekam jejak, multi-timeframe, kalkulator ----------
-const TF_NOTE = {
-  '1m': 'Timeframe 1 menit belum diuji jangka panjang. Di 15 menit, sinyal ini setara lempar koin.',
-  '15m': 'Uji 125 hari pada 6 instrumen: setara lempar koin, rugi setelah biaya.',
-  '1h': 'Uji 416 hari pada 6 instrumen: kira-kira impas setelah biaya.',
-  '4h': 'Uji 1.000 hari pada 6 instrumen: sedikit unggul, sekitar 54–57% menyentuh TP 1 lebih dulu.',
-  '1d': 'Timeframe harian belum diuji jangka panjang.',
-};
-function recordHtml(a) {
-  const r = a.record;
-  let body = 'Belum cukup data untuk menghitung rekam jejak.';
-  if (r && r.n >= 5) {
-    const p1 = Math.round(100 * r.tp1 / r.n), p2 = Math.round(100 * r.tp2 / r.n);
-    body = `<b class="big num ${p1 >= 55 ? 'up-t' : p1 < 50 ? 'down-t' : 'wait-t'}">${p1}%</b> dari ${r.n} sinyal terakhir (${r.days >= 2 ? Math.round(r.days) + ' hari' : Math.round(r.days * 24) + ' jam'}) menyentuh TP 1 sebelum stop loss; ${p2}% sampai TP 2. Impasnya 50% dan 33%, belum termasuk biaya. ${r.n < 30 ? 'Jumlah sinyalnya sedikit, jadi angka ini mudah berubah.' : ''}`;
-  }
-  return `<div class="rec"><div class="label" style="margin-bottom:4px">Rekam jejak sinyal di ${esc(a.name)}</div>${body}<div class="note" style="margin-top:6px">${TF_NOTE[a.tf]}</div></div>`;
-}
-
-const TF_LABEL = { '1m': '1 menit', '15m': '15 menit', '1h': '1 jam', '4h': '4 jam', '1d': 'Harian' };
-let mtf = { id: null, rows: {}, token: 0 };
-function renderMtf() {
-  const box = $('#mtf'); if (!box || !state.detail) return;
-  const a = state.detail;
-  if (mtf.id !== a.id) { mtf = { id: a.id, rows: {}, token: mtf.token + 1 }; }
-  mtf.rows[a.tf] = a;
-  box.innerHTML = Object.keys(TF_LABEL).map((tf) => {
-    const r = mtf.rows[tf];
-    const inner = r ? (r.error ? '<b class="muted">gagal</b>' : `<b class="${biasTone(r.score)}-t">${esc(r.bias)}</b>`) : (a.stream || mtf.asked ? '<b class="muted">…</b>' : '<b class="muted">klik untuk muat</b>');
-    return `<button data-mtf="${tf}" aria-pressed="${tf === a.tf}"><small>${TF_LABEL[tf]}</small>${inner}</button>`;
-  }).join('');
-  const done = Object.values(mtf.rows).filter((r) => !r.error);
-  const up = done.filter((r) => r.score >= 20).length, down = done.filter((r) => r.score <= -20).length;
-  $('#agree').innerHTML = done.length < 3 ? '' : up >= 4 ? `<span class="up-t">${up} dari ${done.length} timeframe searah naik.</span> Semua timeframe kompak; ini gambaran arah, bukan jaminan hasil.`
-    : down >= 4 ? `<span class="down-t">${down} dari ${done.length} timeframe searah turun.</span> Semua timeframe kompak; ini gambaran arah, bukan jaminan hasil.`
-    : `<span class="wait-t">Timeframe tidak searah</span> (${up} naik, ${down} turun). Hati-hati, arah belum kompak.`;
-  // Sumber gratis (Binance) dimuat otomatis; sumber berkuota hanya saat diminta.
-  if (a.stream && !mtf.loading) loadMtf();
-}
-async function loadMtf() {
-  const a = state.detail, token = mtf.token; if (!a) return;
-  mtf.loading = true; mtf.asked = true;
-  for (const tf of Object.keys(TF_LABEL)) {
-    if (mtf.rows[tf] && Date.now() - mtf.rows[tf].updated < 120000) continue;
-    try { const r = await api(`/api/analyze?id=${encodeURIComponent(a.id)}&tf=${tf}&lite=1`); if (token !== mtf.token) break; mtf.rows[tf] = r; }
-    catch (e) { if (token !== mtf.token) break; mtf.rows[tf] = { error: e.message, updated: Date.now() }; }
-  }
-  mtf.loading = false;
-  if (token === mtf.token) { const keepLoading = mtf.loading; mtf.loading = true; renderMtf(); mtf.loading = keepLoading; }
-}
-
-function updateCalc() {
-  const out = $('#calc-out'), a = state.detail; if (!out || !a || !a.plan) return;
-  const risk = parseFloat($('#calc-risk').value), contract = parseFloat($('#calc-contract').value);
-  if (!(risk > 0) || !(contract > 0)) { out.textContent = 'Isi risiko dan ukuran kontrak.'; return; }
-  const units = risk / a.plan.risk, lots = units / contract;
-  out.innerHTML = `Ukuran posisi: <b class="num">${lots >= 0.01 ? lots.toFixed(2) : lots.toPrecision(2)} lot</b> <span class="muted">(${units < 1 ? units.toPrecision(3) : fmt(units, 2)} unit). Berlaku untuk simbol berharga USD; cek ukuran kontrak di broker Anda.</span>`;
-}
-
-// ---------- Harga langsung (Binance) ----------
-let ws = null, wsKey = '', wsRetry = 0, wsTimer = null, liveSeries = null, cRefs = null, liveOff = 0, liveLastT = 0, chartKey = '', lastPx = {};
-function flash(el, up) { el.classList.remove('flash-up', 'flash-down'); void el.offsetWidth; el.classList.add(up ? 'flash-up' : 'flash-down'); setTimeout(() => el.classList.remove('flash-up', 'flash-down'), 250); }
-function updateLive(price) {
-  const a = state.detail, box = $('#livepl'); if (!a || !box || !a.plan) return;
-  const p = a.plan, dir = a.action === 'BUY' ? 1 : -1, d = a.dec;
-  const pnl = (price - p.entry) * dir, r = pnl / p.risk;
-  const st = (price - p.sl) * dir <= 0 ? '<b class="down-t">Stop loss sudah tersentuh sejak analisa terakhir.</b>' : (price - p.tp1) * dir >= 0 ? '<b class="up-t">TP 1 sudah tersentuh sejak analisa terakhir.</b>' : '';
-  box.innerHTML = `<span>Dari entry: <b class="${pnl >= 0 ? 'up-t' : 'down-t'}">${pnl >= 0 ? '+' : ''}${fmt(pnl, d)} (${r >= 0 ? '+' : ''}${r.toFixed(2)}R)</b></span><span>Ke TP 1: ${fmt(Math.abs(p.tp1 - price), d)}</span><span>Ke SL: ${fmt(Math.abs(price - p.sl), d)}</span>${st}`;
-}
-function setLive(on) { const el = $('#live'); if (!el) return; const a = state.detail; el.classList.toggle('on', !!(on && a && a.stream)); el.textContent = a && a.stream ? (on ? 'LIVE' : 'MENYAMBUNG') : 'TERTUNDA'; }
-function onStream(msg) {
-  const d = msg.data, a = state.detail; if (!d) return;
-  if (d.e === '24hrMiniTicker') {
-    const price = +d.c, chg = (price - +d.o) / +d.o * 100, up = price >= (lastPx[d.s] || price); const moved = price !== lastPx[d.s]; lastPx[d.s] = price;
-    document.querySelectorAll(`[data-px="${d.s}"]`).forEach((el) => { el.textContent = fmt(price, +el.dataset.dec); if (moved) flash(el, up); });
-    document.querySelectorAll(`[data-ch="${d.s}"]`).forEach((el) => { el.textContent = `${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%`; el.className = `ch num ${chg >= 0 ? 'up' : 'down'}`; });
-  } else if (d.e === 'kline' && a && a.stream === d.s && d.k.i === a.tf && liveSeries) {
-    const k = d.k, t = k.t / 1000, price = +k.c;
-    if (t >= liveLastT) { try { liveSeries.update({ time: t + liveOff, open: +k.o, high: +k.h, low: +k.l, close: price }); } catch {} liveLastT = t; }
-    const el = $('#px'); if (el) { const prev = parseFloat(el.dataset.v || a.price); el.textContent = fmt(price, a.dec); if (price !== prev) flash(el, price > prev); el.dataset.v = price; }
-    updateLive(price); setLive(true);
-    if (k.x) setTimeout(() => loadDetail(true), 800);   // candle selesai: hitung ulang analisa
-  }
-}
-function connectLive() {
-  const a = state.detail;
-  const syms = [...new Set(Object.values(state.rows).map((r) => r && r.stream).filter(Boolean))].sort();
-  const streams = syms.map((x) => x.toLowerCase() + '@miniTicker');
-  if (a && a.stream) streams.push(`${a.stream.toLowerCase()}@kline_${a.tf}`);
-  const key = streams.join('/');
-  if (key === wsKey && ws && ws.readyState <= 1) { setLive(ws.readyState === 1); return; }
-  wsKey = key; clearTimeout(wsTimer);
-  if (ws) { ws.onclose = null; try { ws.close(); } catch {} ws = null; }
-  if (!streams.length || !('WebSocket' in window)) { setLive(false); return; }
-  let sock;
-  try { sock = new WebSocket('wss://data-stream.binance.vision/stream?streams=' + key); } catch { return; }
-  ws = sock;
-  sock.onopen = () => { wsRetry = 0; setLive(true); };
-  sock.onmessage = (e) => { try { onStream(JSON.parse(e.data)); } catch {} };
-  sock.onclose = () => { if (ws !== sock) return; setLive(false); wsTimer = setTimeout(() => { wsKey = ''; connectLive(); }, Math.min(30000, 2000 * 2 ** wsRetry++)); };
-  sock.onerror = () => { try { sock.close(); } catch {} };
-}
-
-async function loadDetail(quiet) {
-  const token = ++loadToken, it = state.items.find((i) => i.id === state.id);
-  if (!quiet) $('#detail').innerHTML = `<div class="state"><b>Menganalisa ${esc(it ? it.name : '')}…</b>${it && it.needsKey ? 'Data Twelve Data dibatasi 8 permintaan per menit, jadi kadang perlu menunggu sebentar.' : ''}</div>`;
-  try {
-    const a = await api(`/api/analyze?id=${encodeURIComponent(state.id)}&tf=${state.tf}`);
-    if (token !== loadToken) return;
-    if (quiet && document.activeElement && /^calc-/.test(document.activeElement.id)) return; // jangan ganggu saat mengetik
-    state.detail = a; state.rows[a.id] = a;
-    renderDetail(a); renderWatchlist();
-  } catch (e) {
-    if (token !== loadToken || quiet) return;
-    state.detail = null;
-    const needKey = it && it.needsKey && !state.hasKey;
-    $('#detail').innerHTML = `<div class="state"><b>${needKey ? esc(it.name) + ' butuh API key Twelve Data' : 'Data tidak bisa dimuat'}</b>${esc(e.message)}<br><br>${needKey ? (state.locked ? 'Tambahkan variabel TWELVEDATA_KEY di pengaturan Vercel, lalu Redeploy.' : '<button class="btn primary" id="open-key">Isi API key gratis</button>') : '<button class="btn" id="retry">Coba lagi</button>'}</div>`;
-  }
-}
-
-async function loadNews() {
-  try { const n = await api('/api/news'); state.news = n.events; state.newsError = n.error; } catch (e) { state.newsError = e.message; }
-  renderNews();
-}
-
-async function loadInstruments() {
-  const r = await api('/api/instruments');
-  state.items = [...r.items, ...customList()]; state.hasKey = r.hasKey;
-  $('#btn-settings').hidden = r.locked; state.locked = r.locked;
-  if (!state.items.some((i) => i.id === state.id)) state.id = state.items[0].id;
-  $('#key-state').textContent = r.hasKey ? 'API key sudah tersimpan di komputer ini.' : 'Belum ada API key.';
-  renderWatchlist();
-}
-
-function setTf() { document.querySelectorAll('#tfs button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.tf === state.tf)); }
-
-// ---------- Interaksi ----------
-$('#tfs').addEventListener('click', (e) => {
-  const b = e.target.closest('button'); if (!b) return;
-  state.tf = b.dataset.tf; store.set('tf', state.tf); state.rows = {};
-  setTf(); renderWatchlist(); loadDetail(); refreshWatchlist();
-});
-$('#wl').addEventListener('click', async (e) => {
-  const del = e.target.closest('[data-del]');
-  if (del) {
-    e.stopPropagation();
-    store.set('custom', JSON.stringify(customList().filter((i) => i.id !== del.dataset.del)));
-    delete state.rows[del.dataset.del];
-    await loadInstruments(); loadDetail(); return;
-  }
-  const b = e.target.closest('button[data-id]'); if (!b) return;
-  state.id = b.dataset.id; store.set('id', state.id);
-  renderWatchlist(); loadDetail();
-});
-document.addEventListener('click', (e) => {
-  if (e.target.id === 'open-key' || e.target.id === 'btn-settings') $('#dlg').showModal();
-  if (e.target.id === 'dlg-close') $('#dlg').close();
-  if (e.target.id === 'retry') loadDetail();
-  const m = e.target.closest('#mtf button');
-  if (m) {
-    if (m.dataset.mtf === state.tf) { if (!mtf.loading) loadMtf(); return; }
-    state.tf = m.dataset.mtf; store.set('tf', state.tf); state.rows = {};
-    setTf(); renderWatchlist(); loadDetail(); refreshWatchlist(); return;
-  }
-  if (e.target.id === 'copy-levels' && state.detail && state.detail.plan) {
-    const a = state.detail, p = a.plan, d = a.dec;
-    const text = `${a.name} ${a.action} | Entry ${fmt(p.entry, d)} | SL ${fmt(p.sl, d)} | TP1 ${fmt(p.tp1, d)} | TP2 ${fmt(p.tp2, d)} | TP3 ${fmt(p.tp3, d)}`;
-    const done = (ok) => { e.target.textContent = ok ? 'Tersalin' : 'Gagal menyalin'; setTimeout(() => { e.target.textContent = 'Salin level'; }, 1500); };
-    try { navigator.clipboard.writeText(text).then(() => done(true), () => done(false)); } catch { done(false); }
-    return;
-  }
-  const nf = e.target.closest('#nf button');
-  if (nf) { state.newsFilter = nf.dataset.nf; store.set('nf', state.newsFilter); renderNews(); }
-});
-$('#key-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  try { await api('/api/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tdKey: $('#key').value }) }); }
-  catch (err) { $('#key-state').textContent = err.message; return; }
-  $('#key').value = ''; $('#dlg').close(); state.rows = {};
-  await loadInstruments(); loadDetail(); refreshWatchlist();
-});
-document.addEventListener('input', (e) => {
-  if (e.target.id === 'calc-risk') { store.set('risk', e.target.value); updateCalc(); }
-  if (e.target.id === 'calc-contract' && state.detail) { store.set('contract-' + state.detail.type, e.target.value); updateCalc(); }
-});
-$('#add-type').addEventListener('change', setAddType);
-$('#add-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const type = $('#add-type').value, msg = $('#add-msg');
-  const sym = $('#add-symbol').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
-  if (sym.length < 2 || sym.length > 12) { msg.textContent = 'Simbol tidak valid.'; return; }
-  if (type === 'forex' && sym.length !== 6) { msg.textContent = 'Pasangan forex harus 6 huruf, mis. AUD/USD.'; return; }
-  if (type === 'idx' && idxNames.size && !idxNames.has(sym)) { msg.textContent = `Kode ${sym} tidak ada di daftar Bursa Efek Indonesia.`; return; }
-  const id = `x-${type}-${sym}`;
-  if (state.items.some((i) => i.id === id)) { msg.textContent = `${sym} sudah ada di daftar.`; return; }
-  const name = type === 'forex' ? sym.slice(0, 3) + '/' + sym.slice(3) : sym;
-  const desc = type === 'idx' ? (idxNames.get(sym) || 'Saham Indonesia') : type === 'crypto' ? 'Kripto' : type === 'forex' ? 'Forex' : 'Saham';
-  store.set('custom', JSON.stringify([...customList(), { id, name, desc, type, custom: true, needsKey: type !== 'crypto' }]));
-  $('#add-symbol').value = ''; msg.textContent = `${name} ditambahkan.`;
-  state.id = id; store.set('id', id);
-  await loadInstruments(); loadDetail();
-});
-
-function showLogin(message) {
-  state.authLost = true;
-  if (ws) { ws.onclose = null; try { ws.close(); } catch {} ws = null; }
-  $('#login').hidden = false;
-  $('#login-msg').textContent = message || '';
-  setTimeout(() => $('#login-user').focus(), 0);
-}
-$('#login-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const btn = $('#login-btn'); btn.disabled = true; $('#login-msg').textContent = 'Memeriksa…';
-  try {
-    const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: $('#login-user').value, pass: $('#login-pass').value }) });
-    const body = await res.json().catch(() => ({ error: 'Server tidak menjawab dengan benar.' }));
-    if (!res.ok) throw new Error(body.error || 'Gagal masuk.');
-    location.reload();
-  } catch (err) { $('#login-msg').textContent = err.message; btn.disabled = false; }
-});
-$('#btn-logout').addEventListener('click', async () => {
-  try { await fetch('/api/logout', { method: 'POST' }); } catch {}
-  location.reload();
-});
-
-(async function start() {
-  try {
-    const me = await api('/api/me');
-    if (me.auth && !me.user) { showLogin(me.code === 'kicked' ? me.message : ''); return; }
-    if (me.user) { $('#who').textContent = me.user; $('#who').hidden = false; $('#btn-logout').hidden = false; }
-  } catch (e) { $('#detail').innerHTML = `<div class="state"><b>Server tidak terhubung</b>${esc(e.message)}</div>`; return; }
-  setTf(); setAddType(); loadIdx();
-  try { await loadInstruments(); } catch (e) { $('#detail').innerHTML = `<div class="state"><b>Server tidak terhubung</b>${esc(e.message)}</div>`; return; }
-  loadDetail(); loadNews(); refreshWatchlist();
-  let tick = 0;
-  setInterval(() => { tick++; if (!document.hidden && (state.tf === '1m' || tick % 3 === 0)) loadDetail(true); }, 20 * 1000);
-  setInterval(() => { if (!document.hidden) { refreshWatchlist(); loadNews(); } }, 5 * 60 * 1000);
-})();
-</script>
+  <div id="toast" role="status"></div>
+  <script src="app.js"></script>
 </body>
 </html>
