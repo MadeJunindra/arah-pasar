@@ -188,7 +188,7 @@ dialog a { color: var(--accent); }
 .sq-meta { display: flex; gap: 6px 10px; flex-wrap: wrap; align-items: center; margin-top: 4px; font-size: 12px; color: var(--muted); }
 .sq-extra { margin-top: 8px; }
 .sq-extra .react { justify-content: flex-start; }
-#view-ringkasan, #view-berita, #view-cot, #view-korelasi { display: flex; flex-direction: column; gap: 16px; }
+#view-ringkasan, #view-berita, #view-cot, #view-korelasi, .view { display: flex; flex-direction: column; gap: 16px; }
 a.btn { color: inherit; text-decoration: none; display: inline-block; }
 .ov-verdict .big { white-space: nowrap; }
 .shell { display: grid; grid-template-columns: 220px minmax(0, 1fr); }
@@ -215,6 +215,43 @@ a.btn { color: inherit; text-decoration: none; display: inline-block; }
 .matrix th { font-weight: 600; color: var(--muted); padding: 4px 6px; white-space: nowrap; }
 .matrix td { width: 64px; height: 40px; text-align: center; border-radius: 8px; font-weight: 600; }
 .insights { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+/* Penggerak, regime, rekap, peta */
+.mood { display: flex; gap: 12px 24px; align-items: center; flex-wrap: wrap; padding: 16px 18px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--panel); box-shadow: var(--shadow); }
+.mood .big { font-size: 22px; font-weight: 800; letter-spacing: -.01em; }
+.mood p { margin: 0; flex: 1 1 320px; color: var(--muted); font-size: 13px; }
+.picker { display: flex; gap: 6px; flex-wrap: wrap; }
+.picker button { border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 6px 14px; font-weight: 600; }
+.picker button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.drivers { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.drv { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.drv-h { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.drv-h b { font-size: 15px; }
+.drv .why { font-size: 12.5px; color: var(--muted); margin: 0; }
+.drv .read { font-size: 13.5px; margin: 0; }
+.drv.nodata { opacity: .7; }
+.eff { font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+.eff.up { background: var(--up-bg); color: var(--up); } .eff.down { background: var(--down-bg); color: var(--down); } .eff.wait { background: var(--panel-2); color: var(--muted); }
+.rg-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.rg-table th, .rg-table td { text-align: left; padding: 11px 10px; border-top: 1px solid var(--line); vertical-align: middle; }
+.rg-table th { color: var(--muted); font-weight: 500; font-size: 12px; border-top: 0; }
+.vbar { width: 90px; height: 6px; border-radius: 3px; background: var(--panel-2); overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 6px; }
+.vbar i { display: block; height: 100%; background: var(--accent); }
+.movers { display: flex; flex-direction: column; gap: 8px; }
+.mv { display: grid; grid-template-columns: 90px minmax(0, 1fr) 80px; gap: 10px; align-items: center; font-size: 13px; }
+.mv .bar { position: relative; height: 10px; background: var(--panel-2); border-radius: 5px; }
+.mv .bar::after { content: ""; position: absolute; left: 50%; top: -2px; height: 14px; width: 1px; background: var(--line); }
+.mv .bar i { position: absolute; top: 0; height: 100%; border-radius: 5px; }
+.mv .v { text-align: right; }
+.story { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.map { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); grid-auto-rows: minmax(150px, auto); gap: 12px; }
+.tile { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.tile.hot { border-color: var(--down); background: linear-gradient(180deg, var(--down-bg), var(--panel) 55%); }
+.tile.busy { border-color: var(--wait); }
+.tile-h { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+.tile-h b { font-size: 15px; }
+.tile-h span { font-family: var(--mono); font-weight: 600; color: var(--accent); font-size: 13px; }
+.tile p { margin: 0; font-size: 12.5px; color: var(--muted); }
+.tile .stat { display: flex; gap: 6px; flex-wrap: wrap; }
 .insights li { background: var(--panel-2); border-radius: 10px; padding: 10px 12px; font-size: 13px; }
 .layout.full { grid-template-columns: minmax(0, 1fr); }
 .layout.full aside { display: none; }
@@ -266,6 +303,9 @@ a.btn { color: inherit; text-decoration: none; display: inline-block; }
   .side button { width: auto; flex: none; white-space: nowrap; padding: 7px 10px; }
   .side button[aria-current="page"] { box-shadow: inset 0 -2px 0 var(--accent); }
   .explain { grid-template-columns: minmax(0, 1fr); }
+  .map { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .map .tile { grid-column: auto !important; grid-row: auto !important; }
+  .mv { grid-template-columns: 70px minmax(0, 1fr) 64px; }
   .angles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .sq { grid-template-columns: 52px minmax(0, 1fr); }
   .layout { grid-template-columns: minmax(0, 1fr); }
@@ -295,13 +335,17 @@ a.btn { color: inherit; text-decoration: none; display: inline-block; }
 <div class="shell">
 <nav class="side" id="tabs" aria-label="Halaman">
   <div class="side-h">Baca pasar</div>
-  <button data-view="ringkasan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Ringkasan</span></button>
-  <button data-view="analisa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg><span>Analisa &amp; sinyal</span></button>
-  <div class="side-h">Berita</div>
-  <button data-view="berita"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.9 19.1a10 10 0 0 1 0-14.2M19.1 4.9a10 10 0 0 1 0 14.2M7.8 16.2a6 6 0 0 1 0-8.4M16.2 7.8a6 6 0 0 1 0 8.4"/><circle cx="12" cy="12" r="1.5"/></svg><span>Kalender &amp; reaksi</span></button>
+  <button data-view="penggerak"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg><span>Penggerak pasar</span></button>
+  <button data-view="regime"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Regime pasar</span></button>
+  <button data-view="rekap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>Rekap</span></button>
+  <button data-view="berita"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.9 19.1a10 10 0 0 1 0-14.2M19.1 4.9a10 10 0 0 1 0 14.2M7.8 16.2a6 6 0 0 1 0-8.4M16.2 7.8a6 6 0 0 1 0 8.4"/><circle cx="12" cy="12" r="1.5"/></svg><span>Berita &amp; reaksi</span></button>
+  <button data-view="peta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><span>Peta makro</span></button>
   <div class="side-h">Data &amp; posisi</div>
   <button data-view="cot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.5a6.5 6.5 0 0 1 3.5 5.5"/></svg><span>Posisi COT</span></button>
   <button data-view="korelasi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8 16l8-8M8.5 18h7"/></svg><span>Korelasi</span></button>
+  <div class="side-h">Aksi</div>
+  <button data-view="ringkasan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Ringkasan</span></button>
+  <button data-view="analisa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg><span>Analisa &amp; sinyal</span></button>
 </nav>
 <div class="layout" id="layout">
   <aside>
@@ -320,6 +364,10 @@ a.btn { color: inherit; text-decoration: none; display: inline-block; }
     <section id="view-ringkasan" hidden></section>
     <section id="view-berita" hidden></section>
     <section id="view-cot" hidden></section>
+    <section id="view-penggerak" class="view" hidden></section>
+    <section id="view-regime" class="view" hidden></section>
+    <section id="view-rekap" class="view" hidden></section>
+    <section id="view-peta" class="view" hidden></section>
     <section id="view-korelasi" hidden></section>
     <div id="detail"><div class="state"><b>Memuat data pasar…</b></div></div>
     <footer>Aplikasi ini alat bantu analisa, bukan nasihat keuangan. Sinyal dihitung dari indikator teknikal dan bisa salah. Selalu pakai stop loss dan atur ukuran posisi sesuai risiko yang sanggup Anda tanggung.</footer>
@@ -950,8 +998,156 @@ async function renderKorelasi() {
     </div>`;
 }
 
+// ---------- Data kondisi pasar harian ----------
+let mkt = null, mktAt = 0;
+async function loadMarket(force) {
+  if (!force && mkt && Date.now() - mktAt < 300e3) return mkt;
+  mkt = await api('/api/market'); mktAt = Date.now(); return mkt;
+}
+const pct = (v, d = 2) => v == null ? '–' : `${v >= 0 ? '+' : '−'}${Math.abs(v).toFixed(d).replace('.', ',')}%`;
+const TREND = { naik: ['Tren naik', 1], turun: ['Tren turun', -1], menyamping: ['Menyamping', 0], transisi: ['Peralihan', 0] };
+const keyHint = (d) => d.needsKey ? '<p class="note" style="margin:0">Forex dan saham AS muncul setelah API key Twelve Data dipasang.</p>' : '';
+function failBox(box, title, e) { box.innerHTML = `<div class="state"><b>${esc(title)}</b>${esc(e.message || e)}</div>`; }
+
+// ---------- Regime pasar ----------
+async function renderRegime() {
+  const box = $('#view-regime'); if (box.hidden) return;
+  if (!mkt) box.innerHTML = '<div class="state"><b>Membaca kondisi pasar…</b></div>';
+  let d; try { d = await loadMarket(); } catch (e) { return failBox(box, 'Regime pasar tidak bisa dibaca', e); }
+  if (box.hidden) return;
+  const m = d.mood;
+  const advice = (a) => {
+    const t = a.trend === 'naik' || a.trend === 'turun' ? 'Sinyal searah tren lebih bisa diandalkan.' : a.trend === 'menyamping' ? 'Sinyal tren sering gagal; lebih aman menunggu harga menembus batas.' : 'Arah sedang berganti; tunggu konfirmasi.';
+    const v = a.volLabel === 'tinggi' ? ' Volatilitas tinggi: kecilkan lot, stop loss lebih lebar.' : a.volLabel === 'rendah' ? ' Volatilitas rendah: gerakan kecil, target jangan terlalu jauh.' : '';
+    return t + v;
+  };
+  box.innerHTML = `<div class="view-head"><h1>Regime pasar</h1><span class="muted">timeframe harian · diperbarui ${new Date(d.updated).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span></div>
+    ${m ? `<div class="mood"><div><div class="label">Suasana pasar 20 hari</div><div class="big ${toneOf(m.dir)}-t">${esc(m.label)}</div></div>
+      <p>Aset berisiko (kripto${d.needsKey ? '' : ', saham'}) ${m.risk >= 0 ? 'naik' : 'turun'} rata-rata ${pct(Math.abs(m.risk), 1).slice(1)}, aset aman (emas${d.needsKey ? '' : ', yen'}) ${m.safe >= 0 ? 'naik' : 'turun'} ${pct(Math.abs(m.safe), 1).slice(1)}. ${m.dir < 0 ? 'Pelaku pasar sedang berhati-hati; aset berisiko cenderung tertekan.' : m.dir > 0 ? 'Pelaku pasar sedang berani; aset berisiko cenderung didukung.' : 'Tidak ada kecenderungan yang jelas.'}</p></div>` : ''}
+    <div class="card"><div class="scroll-x"><table class="rg-table"><thead><tr><th>Aset</th><th>Kondisi tren</th><th>Kekuatan tren (ADX)</th><th>Volatilitas</th><th>20 hari</th><th>Artinya</th></tr></thead><tbody>
+    ${d.assets.map((a) => { const [tl, td] = TREND[a.trend]; return `<tr><td><b>${esc(a.name)}</b></td><td><span class="pill ${toneOf(td)}">${arrow(td)} ${tl}</span></td>
+      <td class="num">${a.adx != null ? a.adx.toFixed(0) : '–'} <span class="muted" style="font-family:var(--sans)">${a.adx >= 25 ? 'kuat' : a.adx >= 20 ? 'sedang' : 'lemah'}</span></td>
+      <td><span class="vbar"><i style="width:${a.volPct}%"></i></span><span>${a.volLabel}</span> <span class="muted num">${a.volPct}/100</span></td>
+      <td class="num ${a.mChg >= 0 ? 'up-t' : 'down-t'}">${pct(a.mChg, 1)}</td><td class="muted" style="min-width:240px">${advice(a)}</td></tr>`; }).join('')}
+    </tbody></table></div></div>
+    <p class="note" style="margin:0">Volatilitas dibandingkan dengan satu tahun terakhir: 100 berarti paling liar dalam setahun. Regime dihitung dari harga, bukan dari data ekonomi.</p>${keyHint(d)}`;
+}
+
+// ---------- Rekap ----------
+async function renderRekap() {
+  const box = $('#view-rekap'); if (box.hidden) return;
+  if (!mkt) box.innerHTML = '<div class="state"><b>Menyusun rekap…</b></div>';
+  let d; try { d = await loadMarket(); await loadEvents(); } catch (e) { return failBox(box, 'Rekap tidak bisa disusun', e); }
+  if (box.hidden) return;
+  const A = d.assets, max = (k) => Math.max(1, ...A.map((a) => Math.abs(a[k])));
+  const movers = (k) => A.slice().sort((x, y) => Math.abs(y[k]) - Math.abs(x[k])).map((a) => {
+    const w = (Math.abs(a[k]) / max(k)) * 50;
+    return `<div class="mv"><b>${esc(a.name)}</b><span class="bar"><i style="${a[k] >= 0 ? 'left:50%' : 'right:50%'};width:${w}%;background:var(--${a[k] >= 0 ? 'up' : 'down'})"></i></span><span class="v num ${a[k] >= 0 ? 'up-t' : 'down-t'}">${pct(a[k])}</span></div>`;
+  }).join('');
+  const top = A.slice().sort((x, y) => Math.abs(y.dayChg) - Math.abs(x.dayChg))[0];
+  const wild = A.filter((a) => a.rangeRatio >= 1.3), calm = A.filter((a) => a.rangeRatio != null && a.rangeRatio < 0.6);
+  const up = A.filter((a) => a.weekChg > 0).length;
+  const now = Date.now(), released = ((evData && evData.events) || []).filter((e) => e.t <= now && e.impact === 'High' && e.affects.length);
+  const gold = A.find((a) => a.id === 'xauusd');
+  const story = [
+    top ? `Gerakan terbesar hari ini: <b>${esc(top.name)}</b> ${top.dayChg >= 0 ? 'naik' : 'turun'} ${pct(Math.abs(top.dayChg)).replace('+', '')}.` : '',
+    gold ? `Emas ${gold.dayChg >= 0 ? 'naik' : 'turun'} ${pct(Math.abs(gold.dayChg)).replace('+', '')} hari ini dan ${gold.weekChg >= 0 ? 'naik' : 'turun'} ${pct(Math.abs(gold.weekChg)).replace('+', '')} sejak Senin, dengan rentang ${gold.rangeRatio != null ? (gold.rangeRatio * 100).toFixed(0) + '% dari rata-rata harian' : '–'}.` : '',
+    wild.length ? `Lebih liar dari biasanya: ${wild.map((a) => esc(a.name)).join(', ')}.` : calm.length === A.length ? 'Semua aset bergerak lebih tenang dari biasanya hari ini.' : '',
+    `Minggu ini ${up} dari ${A.length} aset naik.`,
+    released.length ? `Berita besar yang sudah rilis minggu ini: ${released.map((e) => esc(e.cur + ' ' + e.title)).join(', ')}.` : 'Belum ada berita besar yang rilis minggu ini.',
+    d.mood ? `Suasana pasar 20 hari: ${esc(d.mood.label.toLowerCase())}.` : '',
+  ].filter(Boolean);
+  box.innerHTML = `<div class="view-head"><h1>Rekap pasar</h1><span class="muted">hari ini dimulai 00.00 UTC (07.00 WIB) · minggu dimulai Senin</span></div>
+    <div class="card"><h2>Ringkasan</h2><ul class="story">${story.map((x) => `<li>${x}</li>`).join('')}</ul></div>
+    <div class="two top"><div class="card"><h2>Hari ini</h2><div class="movers">${movers('dayChg')}</div></div><div class="card"><h2>Sejak Senin</h2><div class="movers">${movers('weekChg')}</div></div></div>
+    <div class="card"><div class="news-tools"><h2>Berita yang sudah rilis</h2><a class="btn" href="#berita">Semua berita</a></div>${squawkHtml(((evData && evData.events) || []).filter((e) => e.t <= now && (e.impact === 'High' || e.impact === 'Medium') && e.affects.length).reverse())}</div>${keyHint(d)}`;
+}
+
+// ---------- Penggerak pasar ----------
+let drvId = store.get('drv', 'xauusd');
+async function renderPenggerak() {
+  const box = $('#view-penggerak'); if (box.hidden) return;
+  if (!mkt) box.innerHTML = '<div class="state"><b>Membaca penggerak pasar…</b></div>';
+  let d; try { d = await loadMarket(); await loadEvents(); } catch (e) { return failBox(box, 'Penggerak pasar tidak bisa dibaca', e); }
+  if (box.hidden) return;
+  const A = Object.fromEntries(d.assets.map((a) => [a.id, a]));
+  if (!A[drvId]) drvId = d.assets[0] ? d.assets[0].id : 'xauusd';
+  const me = A[drvId], cot = COT_IDS.includes(drvId) ? await loadCot(drvId) : null;
+  if (box.hidden) return;
+  const ev = (evData && evData.events) || [], now = Date.now();
+  const eur = A.eurusd, usdDir = eur ? -Math.sign(Math.round(eur.mChg * 10)) : null;
+  const usdRead = eur ? `Dolar ${usdDir > 0 ? 'menguat' : usdDir < 0 ? 'melemah' : 'datar'} dalam 20 hari (EUR/USD ${pct(eur.mChg, 1)}).` : null;
+  const curEvents = (cur) => { const left = ev.filter((e) => e.cur === cur && e.impact === 'High' && e.t > now); const nx = left[0];
+    return left.length ? `${left.length} berita berdampak tinggi ${cur} tersisa minggu ini. Berikutnya: ${nx.title}, ${untilText(nx.t)}.` : `Tidak ada berita berdampak tinggi ${cur} tersisa minggu ini.`; };
+  const mood = d.mood, tr = me ? TREND[me.trend] : ['–', 0];
+  const D = (name, why, read, dir) => ({ name, why, read, dir });
+  const trendDrv = me ? D('Tren & volatilitas', 'Kondisi harga sendiri: arah tren harian dan seberapa liar geraknya.', `${tr[0]}, ADX ${me.adx != null ? me.adx.toFixed(0) : '–'}, volatilitas ${me.volLabel}. Harga ${pct(me.mChg, 1)} dalam 20 hari.`, tr[1]) : null;
+  const moodDrv = (sign, why) => D('Selera risiko', why, mood ? `${mood.label}: aset berisiko ${pct(mood.risk, 1)}, aset aman ${pct(mood.safe, 1)} dalam 20 hari.` : null, mood ? mood.dir * sign : 0);
+  const cotDrv = cot && !cot.error && !cot.none ? (() => { const ci = cotText(cot); return D('Posisi dana besar (COT)', 'Arah taruhan dana spekulatif besar di bursa berjangka AS.', ci.text, ci.dir); })() : null;
+  const none = 'Belum ada sumber data gratis untuk ini.';
+  let list = [];
+  if (drvId === 'xauusd') list = [
+    D('Dolar AS', 'Emas dihargai dalam dolar; dolar menguat biasanya menekan emas.', usdRead || 'Butuh API key Twelve Data untuk membaca arah dolar.', usdDir != null ? -usdDir : 0),
+    D('Berita ekonomi AS', 'Inflasi, tenaga kerja, dan keputusan Fed mengubah perkiraan suku bunga, penggerak terbesar emas.', curEvents('USD'), 0),
+    D('Selera risiko', 'Saat pasar takut, emas sering dicari sebagai aset aman.', mood ? `Aset berisiko ${pct(mood.risk, 1)} dalam 20 hari: pasar ${mood.risk < -5 ? 'sedang takut' : mood.risk > 5 ? 'sedang berani' : 'tidak terlalu takut atau berani'}.` : null, mood ? (mood.risk < -5 ? 1 : mood.risk > 5 ? -1 : 0) : 0), cotDrv, trendDrv,
+    D('Suku bunga riil & pembelian bank sentral', 'Imbal hasil obligasi setelah inflasi dan pembelian emas oleh bank sentral.', none, 0)];
+  else if (me && me.type === 'crypto') list = [
+    moodDrv(1, 'Kripto bergerak seperti aset berisiko: naik saat pasar berani, turun saat takut.'),
+    D('Dolar AS & The Fed', 'Suku bunga AS yang tinggi dan dolar kuat biasanya menekan kripto.', usdRead ? usdRead + ' ' + curEvents('USD') : curEvents('USD'), usdDir != null ? -usdDir : 0),
+    drvId !== 'btcusd' && A.btcusd ? D('Arah Bitcoin', 'Kripto lain umumnya mengikuti arah BTC.', `BTC ${pct(A.btcusd.mChg, 1)} dalam 20 hari, ${TREND[A.btcusd.trend][0].toLowerCase()}.`, TREND[A.btcusd.trend][1]) : null,
+    trendDrv, D('Aliran dana ETF & data on-chain', 'Dana masuk/keluar ETF kripto dan aktivitas jaringan.', none, 0)];
+  else if (me && me.type === 'forex') { const [b, q] = me.name.split('/'); list = [
+    D(`Berita ${b} & ${q}`, 'Data ekonomi dan bank sentral kedua mata uang menentukan arah pasangan ini.', curEvents(b) + ' ' + curEvents(q), 0),
+    drvId === 'usdjpy' ? moodDrv(1, 'Yen dicari saat pasar takut, jadi USD/JPY cenderung turun saat risk-off.') : null,
+    cotDrv, trendDrv, D('Selisih suku bunga', 'Mata uang dengan suku bunga lebih tinggi cenderung lebih diminati.', none, 0)]; }
+  else if (me) list = [
+    moodDrv(1, 'Saham naik saat pasar berani mengambil risiko.'),
+    D('Berita ekonomi AS', 'Data ekonomi dan Fed memengaruhi valuasi saham.', curEvents('USD'), 0),
+    trendDrv, D('Laporan keuangan perusahaan', 'Laba dan proyeksi perusahaan.', none, 0)];
+  list = list.filter(Boolean);
+  const counted = list.filter((x) => x.read && x.read !== none), nUp = counted.filter((x) => x.dir > 0).length, nDn = counted.filter((x) => x.dir < 0).length;
+  box.innerHTML = `<div class="view-head"><h1>Penggerak pasar</h1><span class="muted">apa yang sedang mendorong harga</span></div>
+    <div class="picker" id="drv-pick">${d.assets.map((a) => `<button data-drv="${esc(a.id)}" aria-pressed="${a.id === drvId}">${esc(a.name)}</button>`).join('')}</div>
+    ${me ? `<div class="mood"><div><div class="label">${esc(me.name)} · gabungan penggerak</div><div class="big ${toneOf(nUp && !nDn ? 1 : nDn && !nUp ? -1 : 0)}-t">${nUp && !nDn ? '↑ Searah naik' : nDn && !nUp ? '↓ Searah turun' : nUp && nDn ? '⇅ Saling bertentangan' : '→ Belum ada dorongan jelas'}</div></div><p>${nUp} penggerak mendorong naik, ${nDn} mendorong turun. ${nUp && nDn ? 'Saat penggerak bertentangan, harga sering bergerak tidak menentu; jangan memperbesar posisi. ' : ''}Penggerak tanpa data tidak dihitung. Ini gambaran konteks, bukan sinyal masuk.</p></div>` : ''}
+    <div class="drivers">${list.map((x) => { const nod = !x.read || x.read === none; return `<div class="drv ${nod ? 'nodata' : ''}"><div class="drv-h"><b>${esc(x.name)}</b><span class="eff ${nod ? 'wait' : toneOf(x.dir)}">${nod ? 'tanpa data' : x.dir > 0 ? '↑ dorong naik' : x.dir < 0 ? '↓ dorong turun' : '→ netral'}</span></div><p class="why">${esc(x.why)}</p><p class="read">${esc(x.read || none)}</p></div>`; }).join('')}</div>${keyHint(d)}`;
+}
+document.addEventListener('click', (e) => { const b = e.target.closest('[data-drv]'); if (!b) return; drvId = b.dataset.drv; store.set('drv', drvId); renderPenggerak(); });
+
+// ---------- Peta makro ----------
+const REGIONS = [
+  ['CAD', 'Kanada', '1 / 1'], ['USD', 'Amerika Serikat', '2 / 1 / span 1 / span 2'], ['GBP', 'Inggris', '1 / 3'], ['EUR', 'Zona Euro', '1 / 4'],
+  ['CHF', 'Swiss', '2 / 4'], ['CNY', 'Tiongkok', '2 / 5'], ['JPY', 'Jepang', '1 / 6'], ['AUD', 'Australia', '3 / 5'], ['NZD', 'Selandia Baru', '3 / 6'],
+];
+async function renderPeta() {
+  const box = $('#view-peta'); if (box.hidden) return;
+  if (!evData) box.innerHTML = '<div class="state"><b>Memuat kalender…</b></div>';
+  const d = await loadEvents(); if (box.hidden) return;
+  const ev = d.events || [], now = Date.now();
+  const speak = /speaks|testif|press conference|minutes|rate|statement/i;
+  const tiles = REGIONS.map(([cur, name, pos]) => {
+    const mine = ev.filter((e) => e.cur === cur && (e.impact === 'High' || e.impact === 'Medium'));
+    const hi = mine.filter((e) => e.impact === 'High'), left = mine.filter((e) => e.t > now), done = mine.filter((e) => e.t <= now);
+    const next = left[0], cb = mine.filter((e) => speak.test(e.title)).length;
+    const hot = next && next.impact === 'High' && next.t - now < 24 * 3600e3;
+    const lastHi = [...hi].reverse().find((e) => e.t <= now);
+    const react = lastHi && lastHi.reaction && lastHi.reaction.xauusd && lastHi.reaction.xauusd.m15 != null ? ` Emas ${pct((lastHi.reaction.xauusd.m15 / lastHi.reaction.xauusd.open) * 100)} dalam 15 menit.` : '';
+    const affects = (AFFECTS_UI[cur] || []).map((id) => `<span class="chip">${esc(NAME(id))}</span>`).join('');
+    return `<div class="tile ${hot ? 'hot' : left.length ? 'busy' : ''}" style="grid-area:${pos}">
+      <div class="tile-h"><b>${esc(name)}</b><span>${cur}</span></div>
+      <div class="stat"><span class="imp High">${hi.length} tinggi</span><span class="imp Medium">${mine.length - hi.length} sedang</span>${cb ? `<span class="chip">${cb} bank sentral</span>` : ''}</div>
+      <p>${next ? `Berikutnya: <b style="color:var(--fg)">${esc(next.title)}</b>, ${untilText(next.t)}.` : done.length ? 'Semua jadwal penting minggu ini sudah lewat.' : 'Tidak ada jadwal penting minggu ini.'}</p>
+      ${lastHi ? `<p>Terakhir: ${esc(lastHi.title)}.${react}</p>` : ''}
+      ${affects ? `<div class="chips">${affects}</div>` : ''}</div>`;
+  }).join('');
+  box.innerHTML = `<div class="view-head"><h1>Peta makro</h1><span class="muted">jadwal penting minggu ini per negara</span></div>
+    <div class="map">${tiles}</div>
+    <p class="note" style="margin:0">Merah: ada berita berdampak tinggi dalam 24 jam. Kuning: masih ada jadwal penting minggu ini. Sumber: kalender Forex Factory.</p>`;
+}
+const AFFECTS_UI = { USD: ['xauusd', 'btcusd', 'eurusd', 'usdjpy'], EUR: ['eurusd'], GBP: ['gbpusd'], JPY: ['usdjpy'], CNY: ['xauusd'] };
+const COT_IDS = ['xauusd', 'eurusd', 'gbpusd', 'usdjpy'];
+
 // ---------- Navigasi antar halaman ----------
-const VIEWS = ['ringkasan', 'analisa', 'berita', 'cot', 'korelasi'];
+const VIEWS = ['ringkasan', 'analisa', 'berita', 'cot', 'korelasi', 'penggerak', 'regime', 'rekap', 'peta'];
 function currentView() { const h = location.hash.slice(1); return VIEWS.includes(h) ? h : 'ringkasan'; }
 function showView() {
   const v = currentView();
@@ -962,11 +1158,16 @@ function showView() {
   $('#view-berita').hidden = v !== 'berita';
   $('#view-cot').hidden = v !== 'cot';
   $('#view-korelasi').hidden = v !== 'korelasi';
+  ['penggerak', 'regime', 'rekap', 'peta'].forEach((x) => { $('#view-' + x).hidden = v !== x; });
   $('#detail').hidden = v !== 'analisa';
   if (v === 'ringkasan') { renderOverview(); if (!ov.at || Date.now() - ov.at > 5 * 60e3) loadOverview(); }
   if (v === 'berita') renderBerita();
   if (v === 'cot') renderCotPage();
   if (v === 'korelasi') renderKorelasi();
+  if (v === 'penggerak') renderPenggerak();
+  if (v === 'regime') renderRegime();
+  if (v === 'rekap') renderRekap();
+  if (v === 'peta') renderPeta();
   window.scrollTo(0, 0);
 }
 $('#tabs').addEventListener('click', (e) => { const b = e.target.closest('button[data-view]'); if (b) location.hash = b.dataset.view; });
