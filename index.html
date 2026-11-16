@@ -157,7 +157,63 @@ dialog a { color: var(--accent); }
 .field input { width: 100%; }
 .row { display: flex; gap: 8px; justify-content: flex-end; }
 
+/* Navigasi dan tampilan Ringkasan / Berita */
+#view-ringkasan, #view-berita { display: flex; flex-direction: column; gap: 16px; }
+a.btn { color: inherit; text-decoration: none; display: inline-block; }
+.ov-verdict .big { white-space: nowrap; }
+.tabs { display: flex; gap: 4px; margin-right: auto; }
+.tabs button { border: 0; background: none; color: var(--muted); padding: 7px 12px; border-radius: 8px; font-weight: 600; }
+.tabs button:hover { color: var(--fg); }
+.tabs button[aria-current="page"] { background: var(--panel-2); color: var(--fg); }
+.brand { margin-right: 8px; }
+.layout.full { grid-template-columns: minmax(0, 1fr); }
+.layout.full aside { display: none; }
+.view-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; }
+.view-head h1 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
+.counts { display: flex; gap: 8px; flex-wrap: wrap; font-size: 13px; }
+.next-ev { display: flex; align-items: center; gap: 10px 16px; flex-wrap: wrap; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); }
+.next-ev.hot { border-color: var(--down); background: linear-gradient(90deg, var(--down-bg), var(--panel) 60%); }
+.next-ev b { font-size: 15px; }
+.chips { display: inline-flex; gap: 4px; flex-wrap: wrap; }
+.chip { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 6px; background: var(--panel-2); color: var(--muted); }
+.ov-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.ov { display: flex; flex-direction: column; gap: 8px; text-align: left; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; min-width: 0; }
+.ov:hover { border-color: var(--accent); }
+.ov.up { box-shadow: inset 3px 0 0 var(--up); } .ov.down { box-shadow: inset 3px 0 0 var(--down); } .ov.wait { box-shadow: inset 3px 0 0 var(--wait); }
+.ov-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.ov-top b { font-size: 16px; }
+.ov-verdict { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.ov-verdict .big { font-size: 20px; font-weight: 800; letter-spacing: -.01em; }
+.conv { height: 4px; border-radius: 2px; background: var(--panel-2); overflow: hidden; }
+.conv i { display: block; height: 100%; }
+.ov p { margin: 0; font-size: 13px; color: var(--muted); }
+.ov .risk { color: var(--wait); }
+.ov.dim { opacity: .55; }
+.squawk { display: flex; flex-direction: column; }
+.sq { display: grid; grid-template-columns: 70px minmax(0, 1fr) auto; gap: 4px 12px; padding: 10px 0; border-top: 1px solid var(--line); align-items: baseline; }
+.sq:first-child { border-top: 0; }
+.sq .when { font-size: 12px; color: var(--muted); }
+.sq .what { min-width: 0; }
+.sq .what small { display: block; color: var(--muted); font-size: 12px; }
+.react { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.react span { font-size: 12px; padding: 2px 8px; border-radius: 6px; background: var(--bg); white-space: nowrap; }
+.angles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.angle { background: var(--bg); border-radius: 10px; padding: 12px; min-width: 0; }
+.angle .label { margin-bottom: 4px; }
+.angle b { display: block; font-size: 15px; margin-bottom: 4px; }
+.angle p { margin: 0; font-size: 12.5px; color: var(--muted); }
+.keyrisk { margin-top: 10px; font-size: 13px; }
+.spark { display: block; width: 100%; height: 28px; margin-top: 6px; }
+.pattern { width: 100%; border-collapse: collapse; font-size: 13px; }
+.pattern th, .pattern td { text-align: left; padding: 7px 8px; border-top: 1px solid var(--line); }
+.pattern th { color: var(--muted); font-weight: 500; font-size: 12px; }
+.scroll-x { overflow-x: auto; }
+
 @media (max-width: 900px) {
+  .tabs { order: 3; width: 100%; overflow-x: auto; }
+  .angles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sq { grid-template-columns: 56px minmax(0, 1fr); }
+  .react { grid-column: 1 / -1; justify-content: flex-start; }
   .layout { grid-template-columns: minmax(0, 1fr); }
   aside { border-right: 0; border-bottom: 1px solid var(--line); }
   .wl { flex-direction: row; overflow-x: auto; padding-bottom: 6px; }
@@ -173,7 +229,8 @@ dialog a { color: var(--accent); }
 </head>
 <body>
 <header class="top">
-  <div class="brand">Arah Pasar<span>analisa teknikal + kalender Forex Factory</span></div>
+  <div class="brand">Arah Pasar</div>
+  <nav class="tabs" id="tabs" aria-label="Halaman"><button data-view="ringkasan">Ringkasan</button><button data-view="analisa">Analisa</button><button data-view="berita">Berita &amp; reaksi</button></nav>
   <div class="seg" id="tfs" role="group" aria-label="Timeframe">
     <button data-tf="1m">1 menit</button><button data-tf="15m">15 menit</button><button data-tf="1h">1 jam</button><button data-tf="4h">4 jam</button><button data-tf="1d">Harian</button>
   </div>
@@ -181,7 +238,7 @@ dialog a { color: var(--accent); }
   <span id="who" hidden></span><button class="btn" id="btn-logout" type="button" hidden>Keluar</button>
 </header>
 
-<div class="layout">
+<div class="layout" id="layout">
   <aside>
     <div class="wl-head"><span>Instrumen</span><span id="wl-status"></span></div>
     <ul class="wl" id="wl"></ul>
@@ -195,6 +252,8 @@ dialog a { color: var(--accent); }
   </aside>
 
   <main>
+    <section id="view-ringkasan" hidden></section>
+    <section id="view-berita" hidden></section>
     <div id="detail"><div class="state"><b>Memuat data pasar…</b></div></div>
     <footer>Aplikasi ini alat bantu analisa, bukan nasihat keuangan. Sinyal dihitung dari indikator teknikal dan bisa salah. Selalu pakai stop loss dan atur ukuran posisi sesuai risiko yang sanggup Anda tanggung.</footer>
   </main>
@@ -370,6 +429,12 @@ function renderDetail(a) {
       </div>
     </div>
 
+    <div class="card" style="margin-top:16px">
+      <div class="label" style="margin-bottom:10px">Empat sudut analisa</div>
+      <div class="angles" id="angles"></div>
+      <div class="keyrisk" id="keyrisk"></div>
+    </div>
+
     <div class="card chart-card" style="margin-top:16px">
       <div class="legend"><span><i style="background:var(--accent)"></i>EMA 20</span><span><i style="background:var(--wait)"></i>EMA 50</span><span><i style="background:#b48cf2"></i>EMA 200</span><span>Garis putus-putus: entry, stop loss, target</span></div>
       <div id="chart"></div>
@@ -396,7 +461,7 @@ function renderDetail(a) {
       </div>
     </div>`;
   drawChart(a, keepEl);
-  renderNews(); renderMtf(); updateCalc(); updateLive(a.price); connectLive();
+  renderNews(); renderMtf(); updateCalc(); updateLive(a.price); connectLive(); loadCot(a.id).then(renderAngles); renderAngles();
 }
 
 function drawChart(a, keepEl) {
@@ -502,6 +567,7 @@ function renderMtf() {
     const inner = r ? (r.error ? '<b class="muted">gagal</b>' : `<b class="${biasTone(r.score)}-t">${esc(r.bias)}</b>`) : (a.stream || mtf.asked ? '<b class="muted">…</b>' : '<b class="muted">klik untuk muat</b>');
     return `<button data-mtf="${tf}" aria-pressed="${tf === a.tf}"><small>${TF_LABEL[tf]}</small>${inner}</button>`;
   }).join('');
+  renderAngles();
   const done = Object.values(mtf.rows).filter((r) => !r.error);
   const up = done.filter((r) => r.score >= 20).length, down = done.filter((r) => r.score <= -20).length;
   $('#agree').innerHTML = done.length < 3 ? '' : up >= 4 ? `<span class="up-t">${up} dari ${done.length} timeframe searah naik.</span> Semua timeframe kompak; ini gambaran arah, bukan jaminan hasil.`
@@ -573,6 +639,198 @@ function connectLive() {
   sock.onclose = () => { if (ws !== sock) return; setLive(false); wsTimer = setTimeout(() => { wsKey = ''; connectLive(); }, Math.min(30000, 2000 * 2 ** wsRetry++)); };
   sock.onerror = () => { try { sock.close(); } catch {} };
 }
+
+// ---------- Data tambahan: COT dan reaksi berita ----------
+const cotCache = {};
+async function loadCot(id) {
+  if (cotCache[id] && Date.now() - cotCache[id].at < 3600e3) return cotCache[id].v;
+  try { const v = await api('/api/cot?id=' + encodeURIComponent(id)); cotCache[id] = { at: Date.now(), v }; return v; }
+  catch (e) { return { error: e.message }; }
+}
+let evData = null, evAt = 0;
+async function loadEvents(force) {
+  if (!force && evData && Date.now() - evAt < 120e3) return evData;
+  try { evData = await api('/api/events'); evAt = Date.now(); } catch (e) { evData = evData || { events: [], history: [], error: e.message }; }
+  return evData;
+}
+const fmtNum = (v) => Math.abs(v) >= 1e3 ? Math.round(v).toLocaleString('id-ID') : String(v);
+const arrow = (d) => d > 0 ? '↑' : d < 0 ? '↓' : '→';
+const word = (d) => d > 0 ? 'Bullish' : d < 0 ? 'Bearish' : 'Netral';
+const toneOf = (d) => d > 0 ? 'up' : d < 0 ? 'down' : 'wait';
+const NAME = (id) => (state.items.find((i) => i.id === id) || { name: id.toUpperCase() }).name;
+
+function cotText(c) {
+  if (!c || c.none) return { dir: 0, head: 'Tidak dipakai', text: c && c.reason ? c.reason : 'Tidak ada laporan COT untuk instrumen ini.' };
+  if (c.error) return { dir: 0, head: 'Gagal dimuat', text: c.error };
+  const side = c.net >= 0 ? 'net long' : 'net short', inst = c.invert ? ' (yen; terbalik untuk USD/JPY)' : '';
+  const chg = c.chg4w === 0 ? 'tidak berubah' : `${c.chg4w > 0 ? 'bertambah' : 'berkurang'} ${fmtNum(Math.abs(c.chg4w))} kontrak dalam 4 minggu`;
+  const crowd = c.index >= 90 ? ' Posisinya termasuk paling ramai dalam 3 tahun, rawan berbalik.' : c.index <= 10 ? ' Posisinya termasuk paling sepi dalam 3 tahun, rawan berbalik.' : '';
+  return { dir: c.tilt, head: `${word(c.tilt)}${c.flow && c.flow !== c.tilt ? ', mulai berkurang' : ''}`,
+    text: `${c.who} ${side} ${fmtNum(Math.abs(c.net))} kontrak di ${c.market}${inst}, ${chg}. Laporan ${new Date(c.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}.${crowd}`, crowded: c.index >= 90 || c.index <= 10 };
+}
+function sparkSvg(vals, color) {
+  if (!vals || vals.length < 2) return '';
+  const mn = Math.min(...vals, 0), mx = Math.max(...vals, 0), h = 28, w = 120;
+  const y = (v) => (mx === mn ? h / 2 : h - 2 - ((v - mn) / (mx - mn)) * (h - 4));
+  const pts = vals.map((v, i) => `${((i / (vals.length - 1)) * w).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="${w}" y1="${y(0)}" y2="${y(0)}" stroke="var(--line)" stroke-width="1"/><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5" vector-effect="non-scaling-stroke"/></svg>`;
+}
+function eventsFor(id) {
+  const ev = (evData && evData.events) || [], now = Date.now();
+  const next = ev.find((e) => e.t > now && e.affects.includes(id) && (e.impact === 'High' || e.impact === 'Medium'));
+  const last = [...ev].reverse().find((e) => e.t <= now && e.affects.includes(id) && e.impact === 'High');
+  return { next, last };
+}
+function untilText(t) {
+  const m = Math.round((t - Date.now()) / 60000);
+  if (m < 0) return 'baru saja';
+  if (m < 60) return `${m} menit lagi`;
+  if (m < 48 * 60) return `${Math.floor(m / 60)} jam ${m % 60} menit lagi`;
+  return new Date(t).toLocaleDateString('id-ID', { weekday: 'long', hour: '2-digit', minute: '2-digit' });
+}
+function keyRisk(a, cotInfo, ev) {
+  if (ev.next && ev.next.impact === 'High' && ev.next.t - Date.now() < 24 * 3600e3) return `Berita besar ${ev.next.cur} ${ev.next.title} ${untilText(ev.next.t)}. Harga bisa bergerak tajam ke arah mana pun.`;
+  if (a.indicators.rsi >= 70) return 'RSI sudah jenuh beli; kenaikan rawan koreksi.';
+  if (a.indicators.rsi <= 30) return 'RSI sudah jenuh jual; penurunan rawan memantul.';
+  if (cotInfo && cotInfo.crowded) return 'Posisi spekulan besar sudah sangat ramai di satu sisi; arah bisa berbalik bila mereka keluar.';
+  if (a.sideways) return 'Tren lemah (ADX rendah); sinyal di pasar menyamping lebih sering gagal.';
+  return 'Tidak ada risiko khusus yang terdeteksi selain risiko pasar biasa.';
+}
+function renderAngles() {
+  const box = $('#angles'), a = state.detail; if (!box || !a) return;
+  const c = cotCache[a.id] && cotCache[a.id].v, ci = c ? cotText(c) : { dir: 0, head: 'Memuat…', text: '' };
+  const done = Object.values(mtf.rows).filter((r) => r && !r.error && r.score != null);
+  const up = done.filter((r) => r.score >= 20).length, dn = done.filter((r) => r.score <= -20).length;
+  const mDir = done.length < 3 ? 0 : up >= 4 ? 1 : dn >= 4 ? -1 : 0;   // sama dengan aturan baris "searah" di atas
+  const ev = eventsFor(a.id);
+  let nDir = 0, nHead = 'Tenang', nText = 'Tidak ada berita penting dalam 24 jam untuk instrumen ini.';
+  if (ev.next && ev.next.t - Date.now() < 24 * 3600e3) { nHead = ev.next.impact === 'High' ? 'Waspada' : 'Ada jadwal'; nText = `${ev.next.cur} ${ev.next.title}, ${untilText(ev.next.t)}. Perkiraan ${ev.next.forecast || '–'}, sebelumnya ${ev.next.previous || '–'}.`; }
+  if (ev.last && ev.last.reaction && ev.last.reaction[a.id] && ev.last.reaction[a.id].m15 != null) {
+    const r = ev.last.reaction[a.id]; nDir = Math.sign(r.m60 != null ? r.m60 : r.m15);
+    nText += ` Setelah ${ev.last.title}, ${r.name} ${r.m15 >= 0 ? 'naik' : 'turun'} ${fmt(Math.abs(r.m15), a.dec)} dalam 15 menit.`;
+  }
+  const tDir = a.score >= 20 ? 1 : a.score <= -20 ? -1 : 0;
+  const cell = (label, dir, head, text, extra = '') => `<div class="angle"><div class="label">${label}</div><b class="${toneOf(dir)}-t">${arrow(dir)} ${esc(head)}</b><p>${esc(text)}</p>${extra}</div>`;
+  box.innerHTML =
+    cell('Teknikal', tDir, `${word(tDir)} (skor ${a.score > 0 ? '+' : ''}${a.score})`, a.factors.slice().sort((x, y) => Math.abs(y.weight * y.value) - Math.abs(x.weight * x.value))[0].text) +
+    cell('Multi-timeframe', mDir, done.length < 3 ? 'Memuat…' : `${up} naik, ${dn} turun`, done.length < 3 ? 'Menghitung arah di lima timeframe.' : mDir ? `Minimal 4 timeframe searah ${mDir > 0 ? 'naik' : 'turun'}.` : 'Timeframe belum kompak; sisanya menyamping atau berlawanan.') +
+    cell('Posisi pelaku besar', ci.dir, ci.head, ci.text, c && c.history ? sparkSvg(c.history.map((v) => v * (c.invert ? -1 : 1)), ci.dir >= 0 ? 'var(--up)' : 'var(--down)') : '') +
+    cell('Berita', nDir, nHead, nText);
+  $('#keyrisk').innerHTML = `<span class="wait-t"><b>Risiko utama:</b></span> ${esc(keyRisk(a, ci, ev))} <span class="muted">Data COT ditampilkan sebagai konteks; uji saya pada emas menunjukkan COT tidak menambah ketepatan sinyal.</span>`;
+}
+
+// ---------- Tampilan Ringkasan ----------
+const ov = { rows: {}, loading: false, at: 0 };
+function reactChips(r, dec) {
+  if (!r) return '';
+  return Object.entries(r).filter(([, x]) => x.m15 != null).map(([id, x]) => {
+    const d = id === 'btcusd' ? 0 : 2;
+    const part = (v, lbl) => v == null ? '' : ` <b class="${v >= 0 ? 'up-t' : 'down-t'}">${v >= 0 ? '+' : ''}${fmt(v, d)}</b> ${lbl}`;
+    return `<span>${esc(x.name)}${part(x.m15, '15m')}${part(x.m60, '1j')} · rentang ${fmt(x.range60 != null ? x.range60 : x.range15, d)}</span>`;
+  }).join('');
+}
+function squawkHtml(list) {
+  if (!list.length) return '<p class="muted" style="margin:0">Belum ada berita penting yang rilis minggu ini. Reaksi pasar akan muncul di sini otomatis 15 menit setelah rilis.</p>';
+  return `<div class="squawk">${list.map((e) => `<div class="sq">
+    <span class="when num">${new Date(e.t).toLocaleDateString('id-ID', { weekday: 'short' })} ${new Date(e.t).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
+    <span class="what"><span class="dot ${esc(e.impact)}"></span><b>${esc(e.cur)}</b> ${esc(e.title)}<small>perkiraan ${esc(e.forecast || '–')} · sebelumnya ${esc(e.previous || '–')}</small></span>
+    <span class="react num">${reactChips(e.reaction) || '<span class="muted">menunggu candle selesai</span>'}</span></div>`).join('')}</div>`;
+}
+function renderOverview() {
+  const box = $('#view-ringkasan'); if (!box || box.hidden) return;
+  const items = state.items, rows = items.map((i) => ov.rows[i.id]).filter((r) => r && !r.error);
+  const nUp = rows.filter((r) => r.score >= 20).length, nDn = rows.filter((r) => r.score <= -20).length, nN = rows.length - nUp - nDn;
+  const ev = (evData && evData.events) || [], now = Date.now();
+  const next = ev.find((e) => e.t > now && e.impact === 'High' && e.affects.length);
+  const released = ev.filter((e) => e.t <= now && (e.impact === 'High' || (e.impact === 'Medium' && e.cur === 'USD')) && e.affects.length).slice(-6).reverse();
+  const cards = items.map((it) => {
+    const r = ov.rows[it.id];
+    if (!r) return `<button class="ov" data-open="${esc(it.id)}"><div class="ov-top"><b>${esc(it.name)}</b><span class="muted">${esc(it.desc)}</span></div><p>Memuat…</p></button>`;
+    if (r.error) return `<button class="ov dim" data-open="${esc(it.id)}"><div class="ov-top"><b>${esc(it.name)}</b><span class="muted">${esc(it.desc)}</span></div><p>${esc(it.needsKey && !state.hasKey ? 'Butuh API key Twelve Data.' : r.error)}</p></button>`;
+    const dir = r.score >= 20 ? 1 : r.score <= -20 ? -1 : 0, c = cotCache[it.id] && cotCache[it.id].v, ci = c && !c.none && !c.error ? cotText(c) : null;
+    const top = r.factors.slice().sort((x, y) => Math.abs(y.weight * y.value) - Math.abs(x.weight * x.value))[0];
+    const evs = eventsFor(it.id);
+    return `<button class="ov ${toneOf(dir)}" data-open="${esc(it.id)}">
+      <div class="ov-top"><b>${esc(it.name)}</b><span class="num" data-px="${esc(r.stream || '')}" data-dec="${r.dec}">${fmt(r.price, r.dec)}</span></div>
+      <div class="ov-verdict"><span class="big ${toneOf(dir)}-t">${arrow(dir)} ${esc(r.bias)}</span><span class="pill ${tone(r)}">${esc(r.action)}</span><span class="muted num">${r.confidence}%</span></div>
+      <div class="conv" title="Keyakinan ${r.confidence}%"><i style="width:${r.confidence}%;background:var(--${toneOf(dir) === 'wait' ? 'wait' : toneOf(dir)})"></i></div>
+      <p>${esc(top.text)}</p>
+      ${ci ? `<p>COT: <span class="${toneOf(ci.dir)}-t">${arrow(ci.dir)} ${esc(ci.head)}</span></p>` : ''}
+      <p class="risk">${esc(keyRisk(r, ci, evs))}</p>
+    </button>`;
+  }).join('');
+  box.innerHTML = `
+    <div class="view-head"><h1>Arah pasar · 4 jam</h1>
+      <div class="counts"><span class="pill up">${nUp} bullish</span><span class="pill down">${nDn} bearish</span><span class="pill wait">${nN} netral</span><span class="muted">${ov.loading ? 'memperbarui…' : ov.at ? 'diperbarui ' + new Date(ov.at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : ''}</span></div></div>
+    <p class="note" style="margin:-6px 0 0">Timeframe 4 jam dipakai di sini karena paling unggul dalam uji historis. Klik kartu untuk analisa lengkap.</p>
+    ${next ? `<div class="next-ev ${next.t - now < 4 * 3600e3 ? 'hot' : ''}"><span class="label">Berita besar berikutnya</span><b>${esc(next.cur)} ${esc(next.title)}</b><span class="num">${untilText(next.t)}</span><span class="muted">perkiraan ${esc(next.forecast || '–')} · sebelumnya ${esc(next.previous || '–')}</span><span class="chips">${next.affects.map((id) => `<span class="chip">${esc(NAME(id))}</span>`).join('')}</span></div>` : ''}
+    <div class="ov-grid">${cards}</div>
+    <div class="card"><div class="news-tools"><h2>Baru saja rilis</h2><a class="btn" href="#berita">Semua berita</a></div>${squawkHtml(released)}</div>`;
+}
+async function loadOverview() {
+  if (ov.loading) return; ov.loading = true; renderOverview();
+  loadEvents().then(renderOverview);
+  Object.keys({ xauusd: 1, eurusd: 1, gbpusd: 1, usdjpy: 1 }).forEach((id) => loadCot(id).then(renderOverview));
+  const order = [...state.items].sort((a, b) => a.needsKey - b.needsKey);
+  for (const it of order) {
+    if (it.needsKey && !state.hasKey) { ov.rows[it.id] = { error: 'Butuh API key Twelve Data.' }; continue; }
+    try { ov.rows[it.id] = await api(`/api/analyze?id=${encodeURIComponent(it.id)}&tf=4h&lite=1`); }
+    catch (e) { ov.rows[it.id] = { error: e.message }; }
+    if (ov.rows[it.id].stream) state.rows[it.id] = state.rows[it.id] || ov.rows[it.id];
+    renderOverview();
+  }
+  ov.loading = false; ov.at = Date.now(); renderOverview(); connectLive();
+}
+
+// ---------- Tampilan Berita & reaksi ----------
+async function renderBerita() {
+  const box = $('#view-berita'); if (!box || box.hidden) return;
+  if (!evData) box.innerHTML = '<div class="state"><b>Memuat kalender…</b></div>';
+  const d = await loadEvents(); if (box.hidden) return;
+  const now = Date.now(), ev = d.events || [];
+  const want = (e) => e.impact === 'High' || e.impact === 'Medium';
+  const upcoming = ev.filter((e) => e.t > now && want(e));
+  const released = ev.filter((e) => e.t <= now && want(e) && e.affects.length).reverse();
+  const hist = (d.history || []).slice().reverse();
+  // Pola reaksi: rata-rata besar gerakan emas 15 menit per jenis berita, dari riwayat yang terkumpul
+  const groups = {};
+  [...(d.history || []), ...released].forEach((e) => { const r = e.reaction && e.reaction.xauusd; if (!r || r.m15 == null) return; const k = e.cur + ' ' + e.title; (groups[k] = groups[k] || []).push(r); });
+  const pat = Object.entries(groups).map(([k, rs]) => ({ k, n: rs.length, avg: rs.reduce((s, r) => s + (r.range15 || 0), 0) / rs.length, up: rs.filter((r) => r.m15 > 0).length })).sort((a, b) => b.avg - a.avg).slice(0, 12);
+  box.innerHTML = `
+    <div class="view-head"><h1>Berita &amp; reaksi pasar</h1><a class="btn" href="https://www.forexfactory.com/calendar" target="_blank" rel="noopener">Lihat angka aktual di Forex Factory</a></div>
+    <p class="note" style="margin:-6px 0 0">Reaksi diukur otomatis dari harga emas (PAXG) dan BTC di Binance: perubahan 15 menit dan 1 jam setelah rilis, plus rentang naik-turunnya. Feed kalender tidak memuat angka aktual, jadi angka itu perlu dilihat di situs Forex Factory.</p>
+    <div class="two">
+      <div class="card"><h2>Sudah rilis minggu ini</h2>${squawkHtml(released)}</div>
+      <div class="card"><h2>Akan datang</h2>${upcoming.length ? `<div class="squawk">${upcoming.map((e) => `<div class="sq"><span class="when num">${new Date(e.t).toLocaleDateString('id-ID', { weekday: 'short' })} ${new Date(e.t).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span><span class="what"><span class="dot ${esc(e.impact)}"></span><b>${esc(e.cur)}</b> ${esc(e.title)}<small>perkiraan ${esc(e.forecast || '–')} · sebelumnya ${esc(e.previous || '–')} · ${untilText(e.t)}</small></span><span class="chips">${e.affects.map((id) => `<span class="chip">${esc(NAME(id))}</span>`).join('')}</span></div>`).join('')}</div>` : '<p class="muted">Tidak ada berita penting tersisa minggu ini.</p>'}</div>
+    </div>
+    <div class="card"><h2>Pola reaksi emas per jenis berita</h2>
+      ${pat.length ? `<div class="scroll-x"><table class="pattern num"><thead><tr><th>Berita</th><th>Kejadian</th><th>Rata-rata rentang 15 menit</th><th>Naik di 15 menit</th></tr></thead><tbody>${pat.map((p) => `<tr><td>${esc(p.k)}</td><td>${p.n}</td><td>${fmt(p.avg, 2)} dolar</td><td>${p.up} dari ${p.n}</td></tr>`).join('')}</tbody></table></div><p class="note">Angka ini menunjukkan seberapa liar emas bergerak, bukan arah yang pasti. Makin banyak kejadian terkumpul, makin bisa dipercaya.</p>` : '<p class="muted">Riwayat mulai terkumpul otomatis minggu ini. Setelah beberapa minggu, tabel ini menunjukkan berita mana yang biasanya paling menggerakkan emas.</p>'}
+    </div>
+    ${hist.length ? `<div class="card"><h2>Riwayat minggu sebelumnya</h2>${squawkHtml(hist.slice(0, 30))}</div>` : ''}`;
+}
+
+// ---------- Navigasi antar halaman ----------
+const VIEWS = ['ringkasan', 'analisa', 'berita'];
+function currentView() { const h = location.hash.slice(1); return VIEWS.includes(h) ? h : 'ringkasan'; }
+function showView() {
+  const v = currentView();
+  document.querySelectorAll('#tabs button').forEach((b) => b.setAttribute('aria-current', b.dataset.view === v ? 'page' : 'false'));
+  $('#layout').classList.toggle('full', v !== 'analisa');
+  $('#tfs').hidden = v !== 'analisa';
+  $('#view-ringkasan').hidden = v !== 'ringkasan';
+  $('#view-berita').hidden = v !== 'berita';
+  $('#detail').hidden = v !== 'analisa';
+  if (v === 'ringkasan') { renderOverview(); if (!ov.at || Date.now() - ov.at > 5 * 60e3) loadOverview(); }
+  if (v === 'berita') renderBerita();
+  window.scrollTo(0, 0);
+}
+$('#tabs').addEventListener('click', (e) => { const b = e.target.closest('button[data-view]'); if (b) location.hash = b.dataset.view; });
+window.addEventListener('hashchange', showView);
+document.addEventListener('click', (e) => {
+  const o = e.target.closest('[data-open]'); if (!o) return;
+  state.id = o.dataset.open; store.set('id', state.id); state.tf = '4h'; store.set('tf', '4h'); state.rows = {};
+  setTf(); renderWatchlist(); loadDetail(); refreshWatchlist(); location.hash = 'analisa';
+});
 
 async function loadDetail(quiet) {
   const token = ++loadToken, it = state.items.find((i) => i.id === state.id);
@@ -704,10 +962,10 @@ $('#btn-logout').addEventListener('click', async () => {
   } catch (e) { $('#detail').innerHTML = `<div class="state"><b>Server tidak terhubung</b>${esc(e.message)}</div>`; return; }
   setTf(); setAddType(); loadIdx();
   try { await loadInstruments(); } catch (e) { $('#detail').innerHTML = `<div class="state"><b>Server tidak terhubung</b>${esc(e.message)}</div>`; return; }
-  loadDetail(); loadNews(); refreshWatchlist();
+  showView(); loadDetail(); loadNews(); refreshWatchlist(); loadEvents().then(() => { renderAngles(); renderOverview(); });
   let tick = 0;
   setInterval(() => { tick++; if (!document.hidden && (state.tf === '1m' || tick % 3 === 0)) loadDetail(true); }, 20 * 1000);
-  setInterval(() => { if (!document.hidden) { refreshWatchlist(); loadNews(); } }, 5 * 60 * 1000);
+  setInterval(() => { if (!document.hidden) { refreshWatchlist(); loadNews(); loadEvents(true).then(() => { renderAngles(); renderOverview(); renderBerita(); }); if (currentView() === 'ringkasan') loadOverview(); } }, 5 * 60 * 1000);
 })();
 </script>
 </body>

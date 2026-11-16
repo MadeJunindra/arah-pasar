@@ -48,3 +48,13 @@ Di Vercel, aturan satu perangkat butuh database sesi:
 3. Redeploy.
 
 Tanpa `USERS`, aplikasi terbuka untuk siapa saja yang tahu alamatnya.
+
+## Halaman
+
+- **Ringkasan**: arah semua instrumen di timeframe 4 jam, keyakinan, alasan utama, posisi pelaku besar (COT), dan risiko utama.
+- **Analisa**: grafik live, sinyal, empat sudut analisa (teknikal, multi-timeframe, posisi pelaku besar, berita), rekam jejak.
+- **Berita & reaksi**: kalender minggu ini dan reaksi emas/BTC yang diukur otomatis 15 menit dan 1 jam setelah rilis.
+  Riwayat reaksi disimpan di database sesi (Upstash) supaya pola reaksi per jenis berita terkumpul dari minggu ke minggu.
+
+Data COT diambil gratis dari CFTC (publicreporting.cftc.gov), diperbarui mingguan, untuk emas, EUR, GBP, dan JPY.
+COT tidak dimasukkan ke skor sinyal: dalam uji pada emas, filter COT tidak menambah ketepatan.
