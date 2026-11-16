@@ -215,6 +215,20 @@ a.btn { color: inherit; text-decoration: none; display: inline-block; }
 .matrix th { font-weight: 600; color: var(--muted); padding: 4px 6px; white-space: nowrap; }
 .matrix td { width: 64px; height: 40px; text-align: center; border-radius: 8px; font-weight: 600; }
 .insights { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+/* Kotak tindakan */
+.todo { border-radius: var(--radius); padding: 16px 18px; border: 1px solid var(--line); background: var(--panel); box-shadow: var(--shadow); }
+.todo.up { border-color: var(--up); background: linear-gradient(180deg, var(--up-bg), var(--panel) 70%); }
+.todo.down { border-color: var(--down); background: linear-gradient(180deg, var(--down-bg), var(--panel) 70%); }
+.todo.wait { border-color: var(--wait); background: linear-gradient(180deg, var(--wait-bg), var(--panel) 70%); }
+.todo-h { display: block; font-size: 20px; font-weight: 800; letter-spacing: -.01em; margin: 2px 0 8px; }
+.todo ol { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.sig .todo { margin-top: 12px; box-shadow: none; }
+.ov .act { color: var(--fg); font-weight: 600; }
+.sub { font-size: 12px; color: var(--muted); }
+.side-btn { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; padding: 0; }
+.side-btn svg { width: 20px; height: 20px; }
+.shell.side-off { grid-template-columns: minmax(0, 1fr); }
+.shell.side-off .side { display: none; }
 /* Penggerak, regime, rekap, peta */
 .mood { display: flex; gap: 12px 24px; align-items: center; flex-wrap: wrap; padding: 16px 18px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--panel); box-shadow: var(--shadow); }
 .mood .big { font-size: 22px; font-weight: 800; letter-spacing: -.01em; }
@@ -323,6 +337,7 @@ a.btn { color: inherit; text-decoration: none; display: inline-block; }
 </head>
 <body>
 <header class="top">
+  <button class="btn side-btn" id="btn-side" type="button" aria-label="Sembunyikan menu" aria-expanded="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   <div class="brand">Arah Pasar</div>
   <div class="seg" id="tfs" role="group" aria-label="Timeframe">
     <button data-tf="1m">1 menit</button><button data-tf="15m">15 menit</button><button data-tf="1h">1 jam</button><button data-tf="4h">4 jam</button><button data-tf="1d">Harian</button>
@@ -332,11 +347,11 @@ a.btn { color: inherit; text-decoration: none; display: inline-block; }
   <span id="who" hidden></span><button class="btn" id="btn-logout" type="button" hidden>Keluar</button>
 </header>
 
-<div class="shell">
+<div class="shell" id="shell">
 <nav class="side" id="tabs" aria-label="Halaman">
   <div class="side-h">Baca pasar</div>
   <button data-view="penggerak"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg><span>Penggerak pasar</span></button>
-  <button data-view="regime"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Regime pasar</span></button>
+  <button data-view="regime"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Kondisi pasar</span></button>
   <button data-view="rekap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>Rekap</span></button>
   <button data-view="berita"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.9 19.1a10 10 0 0 1 0-14.2M19.1 4.9a10 10 0 0 1 0 14.2M7.8 16.2a6 6 0 0 1 0-8.4M16.2 7.8a6 6 0 0 1 0 8.4"/><circle cx="12" cy="12" r="1.5"/></svg><span>Berita &amp; reaksi</span></button>
   <button data-view="peta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><span>Peta makro</span></button>
@@ -534,7 +549,8 @@ function renderDetail(a) {
     <div class="verdict">
       <div class="card">
         <div class="label">Arah pasar</div>
-        <div class="bias ${bt}-t">${esc(a.bias)}</div>
+        <div class="bias ${bt}-t">${esc(BIAS_ID[a.bias] || a.bias)}</div>
+        <p style="margin:0 0 12px">${esc(plainSummary(a))}</p>
         <div class="gauge"><i style="left:${(a.score + 100) / 2}%"></i></div>
         <div class="gauge-l"><span>Bearish</span><span class="num">skor ${a.score > 0 ? '+' : ''}${a.score}</span><span>Bullish</span></div>
       </div>
@@ -542,6 +558,7 @@ function renderDetail(a) {
         <div class="label">Saran posisi</div>
         ${signal}
         ${cautions.length ? `<ul class="cautions">${cautions.join('')}</ul>` : ''}
+        <div id="todo-detail"></div>
       </div>
     </div>
 
@@ -578,6 +595,7 @@ function renderDetail(a) {
     </div>`;
   drawChart(a, keepEl);
   renderNews(); renderMtf(); updateCalc(); updateLive(a.price); connectLive(); loadCot(a.id).then(renderAngles); renderAngles();
+  const td = $('#todo-detail'); if (td) td.innerHTML = actionHtml(decideAction({ sig: a, ev: eventsFor(a.id), name: a.name }));
 }
 
 function drawChart(a, keepEl) {
@@ -776,13 +794,84 @@ const toneOf = (d) => d > 0 ? 'up' : d < 0 ? 'down' : 'wait';
 const NAME = (id) => (state.items.find((i) => i.id === id) || { name: id.toUpperCase() }).name;
 
 function cotText(c) {
-  if (!c || c.none) return { dir: 0, head: 'Tidak dipakai', text: c && c.reason ? c.reason : 'Tidak ada laporan COT untuk instrumen ini.' };
+  if (!c || c.none) return { dir: 0, head: 'Tidak dipakai', text: c && c.reason ? c.reason : 'Tidak ada data taruhan dana besar untuk aset ini.' };
   if (c.error) return { dir: 0, head: 'Gagal dimuat', text: c.error };
-  const side = c.net >= 0 ? 'net long' : 'net short', inst = c.invert ? ' (yen; terbalik untuk USD/JPY)' : '';
-  const chg = c.chg4w === 0 ? 'tidak berubah' : `${c.chg4w > 0 ? 'bertambah' : 'berkurang'} ${fmtNum(Math.abs(c.chg4w))} kontrak dalam 4 minggu`;
-  const crowd = c.index >= 90 ? ' Posisinya termasuk paling ramai dalam 3 tahun, rawan berbalik.' : c.index <= 10 ? ' Posisinya termasuk paling sepi dalam 3 tahun, rawan berbalik.' : '';
-  return { dir: c.tilt, head: `${word(c.tilt)}${c.flow && c.flow !== c.tilt ? ', mulai berkurang' : ''}`,
-    text: `${c.who} ${side} ${fmtNum(Math.abs(c.net))} kontrak di ${c.market}${inst}, ${chg}. Laporan ${new Date(c.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}.${crowd}`, crowded: c.index >= 90 || c.index <= 10 };
+  const what = /Emas/.test(c.market) ? 'emas' : /Euro/.test(c.market) ? 'euro' : /Pound/.test(c.market) ? 'pound' : 'yen';
+  const growing = Math.sign(c.chg4w) === Math.sign(c.net);
+  const date = new Date(c.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+  const crowd = c.index >= 90 ? ' Taruhan ini sudah sangat ramai dibanding 3 tahun terakhir, jadi rawan berbalik.' : c.index <= 10 ? ' Taruhan ini sedang di titik paling sepi dalam 3 tahun, jadi rawan berbalik.' : '';
+  const inv = c.invert ? ' Untuk USD/JPY artinya kebalikannya.' : '';
+  return { dir: c.tilt, head: `${c.tilt > 0 ? 'Mendukung naik' : 'Mendukung turun'}${growing ? '' : ', tapi melemah'}`,
+    text: `Dana besar (hedge fund) lebih banyak bertaruh ${what} ${c.net >= 0 ? 'naik' : 'turun'}, ${growing ? 'dan taruhannya makin besar' : 'tapi taruhannya mengecil'} dalam 4 minggu terakhir (data per ${date}).${inv}${crowd}`,
+    crowded: c.index >= 90 || c.index <= 10 };
+}
+// Judul berita Forex Factory dalam bahasa sehari-hari
+const PLAIN = [
+  [/Fed Chair\w*\s+(\w+)\s+Speaks/i, (m) => `Pidato Ketua Bank Sentral AS (${m[1]})`],
+  [/FOMC Meeting Minutes/i, 'Catatan rapat suku bunga AS'], [/FOMC|Federal Funds Rate/i, 'Keputusan suku bunga AS'],
+  [/Non-Farm/i, 'Data lapangan kerja AS (NFP)'], [/Core PCE/i, 'Inflasi pilihan The Fed (Core PCE)'],
+  [/Core CPI/i, 'Inflasi inti (Core CPI)'], [/CPI/i, 'Data inflasi (CPI)'], [/Core PPI/i, 'Inflasi harga produsen inti (Core PPI)'], [/PPI/i, 'Inflasi harga produsen (PPI)'],
+  [/Core Retail Sales/i, 'Penjualan ritel inti'], [/Retail Sales/i, 'Penjualan ritel'], [/Unemployment Claims/i, 'Klaim pengangguran mingguan'],
+  [/Unemployment Rate/i, 'Tingkat pengangguran'], [/Employment Change|Payroll/i, 'Perubahan jumlah pekerja'], [/Average Earnings|Wage/i, 'Kenaikan upah'],
+  [/GDP/i, 'Pertumbuhan ekonomi (PDB)'], [/PMI/i, 'Aktivitas bisnis (PMI)'], [/Inflation Expectations/i, 'Perkiraan inflasi'],
+  [/Consumer Sentiment|Consumer Confidence/i, 'Kepercayaan konsumen'], [/Rate Statement|Interest Rate|Cash Rate|Bank Rate|Rate Decision|Refinancing/i, 'Keputusan suku bunga'],
+  [/Monetary Policy/i, 'Pengumuman kebijakan bank sentral'], [/(Gov|Governor|President|Chair\w*)\s+(\w+)\s+Speaks/i, (m) => `Pidato kepala bank sentral (${m[2]})`],
+  [/Speaks|Testifies/i, 'Pidato pejabat'], [/Trade Balance/i, 'Neraca perdagangan'], [/Manufacturing|Philly Fed|Empire State|Industrial/i, 'Data industri/pabrik'],
+  [/Housing|Home|Building|Pending/i, 'Data perumahan'], [/Financial Stability/i, 'Laporan stabilitas keuangan'], [/Bank Holiday/i, 'Hari libur bank'],
+];
+function plainTitle(t) {
+  for (const [re, out] of PLAIN) { const m = re.exec(t); if (m) return typeof out === 'function' ? out(m) : out; }
+  return null;
+}
+const evName = (e) => `${plainTitle(e.title) || e.title} ${e.cur}`;
+const BIAS_ID = { 'BULLISH KUAT': 'Naik kuat', BULLISH: 'Cenderung naik', SIDEWAYS: 'Belum jelas', BEARISH: 'Cenderung turun', 'BEARISH KUAT': 'Turun kuat' };
+function plainSummary(r) {
+  const s = r.score, rsi = r.indicators && r.indicators.rsi;
+  let t = s <= -50 ? 'Harga sedang turun dengan kuat.' : s <= -20 ? 'Harga cenderung turun.' : s < 20 ? 'Harga naik-turun tanpa arah yang jelas.' : s < 50 ? 'Harga cenderung naik.' : 'Harga sedang naik dengan kuat.';
+  if (rsi <= 30) t += ' Tapi sudah turun terlalu jauh, bisa memantul sebentar.';
+  if (rsi >= 70) t += ' Tapi sudah naik terlalu jauh, bisa turun sebentar.';
+  return t;
+}
+// Apa yang sebaiknya dilakukan, dari sinyal 4 jam, penggerak, berita, dan volatilitas
+function decideAction({ sig, ev, drivers, vol, name }) {
+  const now = Date.now(), steps = [], nx = ev && ev.next, last = ev && ev.last;
+  const soon = nx && nx.impact === 'High' && nx.t - now < 3 * 3600e3;
+  const justOut = last && now - last.t < 30 * 60e3;
+  if (soon || justOut) return { title: 'Jangan buka posisi dulu', tone: 'wait', steps: [
+    soon ? `Ada berita besar: ${evName(nx)}, ${untilText(nx.t)}. Harga bisa melonjak atau anjlok tiba-tiba.` : `Berita besar baru saja keluar (${evName(last)}). Harga masih liar.`,
+    'Tunggu sampai 30 menit setelah berita keluar, lalu buka lagi halaman ini.',
+    'Kalau sudah punya posisi, pastikan stop loss terpasang supaya rugi tidak membesar.'] };
+  if (!sig || sig.error) return { title: 'Belum bisa dinilai', tone: 'wait', steps: ['Data harga belum tersedia untuk aset ini.'] };
+  const d = sig.dec, f = (v) => fmt(v, d), dir = sig.action === 'BUY' ? 1 : sig.action === 'SELL' ? -1 : 0;
+  const against = drivers ? (dir > 0 ? drivers.nDn : dir < 0 ? drivers.nUp : 0) : 0, withUs = drivers ? (dir > 0 ? drivers.nUp : dir < 0 ? drivers.nDn : 0) : 0;
+  const rsi = sig.indicators && sig.indicators.rsi;
+  if (dir && against > withUs) {
+    return { title: 'Tunggu dulu', tone: 'wait', steps: [
+      `Grafik memberi sinyal ${sig.action}, tapi lebih banyak penggerak yang berlawanan (${against} melawan, ${withUs} mendukung).`,
+      sig.resistance || sig.support ? `Tunggu sampai harga jelas ${dir > 0 ? `naik menembus ${f(sig.resistance)}` : `turun menembus ${f(sig.support)}`} sebelum ${sig.action}.` : 'Tunggu sampai arahnya lebih jelas.',
+      'Tidak masuk juga keputusan yang baik. Peluang lain akan datang.'] };
+  }
+  if (dir) {
+    const p = sig.plan, word = dir > 0 ? 'naik' : 'turun';
+    steps.push(`Arah ${name ? name + ' ' : ''}sedang ${word}. Ikuti arah ini; jangan ${dir > 0 ? 'SELL' : 'BUY'} melawannya.`);
+    if (rsi <= 30 && dir < 0) steps.push('Harga sudah turun terlalu jauh. Lebih aman menunggu harga memantul naik sedikit dulu, baru SELL.');
+    if (rsi >= 70 && dir > 0) steps.push('Harga sudah naik terlalu jauh. Lebih aman menunggu harga turun sedikit dulu, baru BUY.');
+    if (p) {
+      steps.push(`Kalau masuk: ${sig.action} di sekitar ${f(p.entry)} dan langsung pasang stop loss di ${f(p.sl)}. Stop loss menutup posisi otomatis kalau tebakan salah.`);
+      steps.push(`Ambil untung pertama di ${f(p.tp1)}. Setelah itu geser stop loss ke harga masuk, supaya posisi tidak bisa rugi lagi.`);
+    }
+    steps.push('Pakai lot kecil: kalau stop loss kena, rugi maksimal 1–2% dari saldo. Kalkulator lot ada di halaman Analisa.');
+    if (against) steps.push(`Ada ${against} penggerak yang berlawanan, jadi pakai lot lebih kecil dari biasanya.`);
+    if (vol === 'tinggi') steps.push('Harga sedang sangat liar. Kecilkan lot.');
+    return { title: `Boleh cari peluang ${sig.action}`, tone: dir > 0 ? 'up' : 'down', steps };
+  }
+  steps.push(drivers && drivers.nUp && drivers.nDn ? `Penggerak saling bertentangan (${drivers.nUp} mendukung naik, ${drivers.nDn} mendukung turun), jadi arahnya belum jelas.` : 'Arah harga belum jelas.');
+  if (sig.resistance && sig.support) steps.push(`BUY baru masuk akal kalau harga naik menembus ${f(sig.resistance)}. SELL baru masuk akal kalau harga turun menembus ${f(sig.support)}.`);
+  steps.push('Sambil menunggu, jangan memaksakan masuk. Tidak masuk juga keputusan yang baik.');
+  return { title: 'Tunggu dulu', tone: 'wait', steps };
+}
+function actionHtml(act) {
+  return `<div class="todo ${act.tone}"><div class="label">Yang sebaiknya Anda lakukan</div><b class="todo-h ${act.tone}-t">${esc(act.title)}</b><ol>${act.steps.map((x) => `<li>${esc(x)}</li>`).join('')}</ol></div>`;
 }
 function sparkSvg(vals, color) {
   if (!vals || vals.length < 2) return '';
@@ -805,7 +894,7 @@ function untilText(t) {
   return `${Math.round(m / 1440)} hari lagi`;
 }
 function keyRisk(a, cotInfo, ev) {
-  if (ev.next && ev.next.impact === 'High' && ev.next.t - Date.now() < 24 * 3600e3) return `Berita besar ${ev.next.cur} ${ev.next.title} ${untilText(ev.next.t)}. Harga bisa bergerak tajam ke arah mana pun.`;
+  if (ev.next && ev.next.impact === 'High' && ev.next.t - Date.now() < 24 * 3600e3) return `Berita besar: ${evName(ev.next)}, ${untilText(ev.next.t)}. Harga bisa melonjak atau anjlok tiba-tiba.`;
   if (a.indicators.rsi >= 70) return 'RSI sudah jenuh beli; kenaikan rawan koreksi.';
   if (a.indicators.rsi <= 30) return 'RSI sudah jenuh jual; penurunan rawan memantul.';
   if (cotInfo && cotInfo.crowded) return 'Posisi spekulan besar sudah sangat ramai di satu sisi; arah bisa berbalik bila mereka keluar.';
@@ -820,10 +909,10 @@ function renderAngles() {
   const mDir = done.length < 3 ? 0 : up >= 4 ? 1 : dn >= 4 ? -1 : 0;   // sama dengan aturan baris "searah" di atas
   const ev = eventsFor(a.id);
   let nDir = 0, nHead = 'Tenang', nText = 'Tidak ada berita penting dalam 24 jam untuk instrumen ini.';
-  if (ev.next && ev.next.t - Date.now() < 24 * 3600e3) { nHead = ev.next.impact === 'High' ? 'Waspada' : 'Ada jadwal'; nText = `${ev.next.cur} ${ev.next.title}, ${untilText(ev.next.t)}. Perkiraan ${ev.next.forecast || '–'}, sebelumnya ${ev.next.previous || '–'}.`; }
+  if (ev.next && ev.next.t - Date.now() < 24 * 3600e3) { nHead = ev.next.impact === 'High' ? 'Waspada' : 'Ada jadwal'; nText = `${evName(ev.next)}, ${untilText(ev.next.t)}. Perkiraan ${ev.next.forecast || '–'}, sebelumnya ${ev.next.previous || '–'}.`; }
   if (ev.last && ev.last.reaction && ev.last.reaction[a.id] && ev.last.reaction[a.id].m15 != null) {
     const r = ev.last.reaction[a.id]; nDir = Math.sign(r.m60 != null ? r.m60 : r.m15);
-    nText += ` Setelah ${ev.last.title}, ${r.name} ${r.m15 >= 0 ? 'naik' : 'turun'} ${fmt(Math.abs(r.m15), a.dec)} dalam 15 menit.`;
+    nText += ` Setelah ${plainTitle(ev.last.title) || ev.last.title}, ${r.name} ${r.m15 >= 0 ? 'naik' : 'turun'} ${fmt(Math.abs(r.m15), a.dec)} dalam 15 menit.`;
   }
   const tDir = a.score >= 20 ? 1 : a.score <= -20 ? -1 : 0;
   const cell = (label, dir, head, text, extra = '') => `<div class="angle"><div class="label">${label}</div><b class="${toneOf(dir)}-t">${arrow(dir)} ${esc(head)}</b><p>${esc(text)}</p>${extra}</div>`;
@@ -857,7 +946,7 @@ function evRow(e, extra) {
   return `<div class="sq">
     <span class="when num">${d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
     <div class="what">
-      <div class="sq-title"><b class="cur">${esc(e.cur)}</b><span>${esc(e.title)}</span></div>
+      <div class="sq-title"><b class="cur">${esc(e.cur)}</b><span>${esc(plainTitle(e.title) || e.title)}</span>${plainTitle(e.title) ? `<span class="sub">${esc(e.title)}</span>` : ''}</div>
       <div class="sq-meta"><span class="imp ${esc(e.impact)}">${e.impact === 'High' ? 'Dampak tinggi' : 'Dampak sedang'}</span>${metaHtml(e) ? `<span>${metaHtml(e)}</span>` : ''}${cd}</div>
       ${extra ? `<div class="sq-extra">${extra}</div>` : ''}
     </div></div>`;
@@ -891,18 +980,19 @@ function renderOverview() {
     const evs = eventsFor(it.id);
     return `<button class="ov ${toneOf(dir)}" data-open="${esc(it.id)}">
       <div class="ov-top"><b>${esc(it.name)}</b><span class="num" data-px="${esc(r.stream || '')}" data-dec="${r.dec}">${fmt(r.price, r.dec)}</span></div>
-      <div class="ov-verdict"><span class="big ${toneOf(dir)}-t">${arrow(dir)} ${esc(r.bias)}</span><span class="pill ${tone(r)}">${esc(r.action)}</span><span class="muted num">${r.confidence}%</span></div>
+      <div class="ov-verdict"><span class="big ${toneOf(dir)}-t">${arrow(dir)} ${esc(BIAS_ID[r.bias] || r.bias)}</span><span class="pill ${tone(r)}">${esc(r.action)}</span><span class="muted num">${r.confidence}%</span></div>
       <div class="conv" title="Keyakinan ${r.confidence}%"><i style="width:${r.confidence}%;background:var(--${toneOf(dir) === 'wait' ? 'wait' : toneOf(dir)})"></i></div>
-      <p>${esc(top.text)}</p>
+      <p>${esc(plainSummary(r))}</p>
+      <p class="act">Saran: ${esc(decideAction({ sig: r, ev: evs }).title)}</p>
       ${ci ? `<p>COT: <span class="${toneOf(ci.dir)}-t">${arrow(ci.dir)} ${esc(ci.head)}</span></p>` : ''}
       <p class="risk">${esc(keyRisk(r, ci, evs))}</p>
     </button>`;
   }).join('');
   box.innerHTML = `
-    <div class="view-head"><h1>Arah pasar · 4 jam</h1>
-      <div class="counts"><span class="pill up">${nUp} bullish</span><span class="pill down">${nDn} bearish</span><span class="pill wait">${nN} netral</span><span class="muted">${ov.loading ? 'memperbarui…' : ov.at ? 'diperbarui ' + new Date(ov.at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : ''}</span></div></div>
-    <p class="note" style="margin:-6px 0 0">Timeframe 4 jam dipakai di sini karena paling unggul dalam uji historis. Klik kartu untuk analisa lengkap.</p>
-    ${next ? `<div class="next-ev ${next.t - now < 4 * 3600e3 ? 'hot' : ''}"><span class="label">Berita besar berikutnya</span><b>${esc(next.cur)} ${esc(next.title)}</b><span class="cd ${next.t - now < 4 * 3600e3 ? 'soon' : ''}">${untilText(next.t)}</span>${metaHtml(next) ? `<span class="muted">${metaHtml(next)}</span>` : ''}<span class="chips">${next.affects.map((id) => `<span class="chip">${esc(NAME(id))}</span>`).join('')}</span></div>` : ''}
+    <div class="view-head"><h1>Ringkasan semua aset</h1>
+      <div class="counts"><span class="pill up">${nUp} naik</span><span class="pill down">${nDn} turun</span><span class="pill wait">${nN} belum jelas</span><span class="muted">${ov.loading ? 'memperbarui…' : ov.at ? 'diperbarui ' + new Date(ov.at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : ''}</span></div></div>
+    <p class="note" style="margin:-6px 0 0">Dihitung dari grafik 4 jam, yang paling teruji. Klik kartu untuk melihat level masuk, stop loss, dan target.</p>
+    ${next ? `<div class="next-ev ${next.t - now < 4 * 3600e3 ? 'hot' : ''}"><span class="label">Berita besar berikutnya</span><b>${esc(evName(next))}</b><span class="cd ${next.t - now < 4 * 3600e3 ? 'soon' : ''}">${untilText(next.t)}</span>${metaHtml(next) ? `<span class="muted">${metaHtml(next)}</span>` : ''}<span class="chips">${next.affects.map((id) => `<span class="chip">${esc(NAME(id))}</span>`).join('')}</span></div>` : ''}
     <div class="ov-grid">${cards}</div>
     <div class="card"><div class="news-tools"><h2>Baru saja rilis</h2><a class="btn" href="#berita">Semua berita</a></div>${squawkHtml(released)}</div>`;
 }
@@ -962,12 +1052,12 @@ async function renderCotPage() {
     <p class="note" style="margin:0">Kripto dan indeks saham tidak ditampilkan: posisi di bursa berjangkanya didominasi arbitrase harga, jadi tidak mencerminkan arah pasar.</p>`;
   const rows = await Promise.all(ids.map((id) => loadCot(id)));
   if (box.hidden) return;
-  $('#cot-table').innerHTML = `<table class="cot-table num"><thead><tr><th>Pasar</th><th>Arah untuk</th><th>Net posisi</th><th>% open interest</th><th>Ubah 1 minggu</th><th>Ubah 4 minggu</th><th>Posisi vs 3 tahun</th><th>52 minggu</th></tr></thead><tbody>${rows.map((c, k) => {
+  $('#cot-table').innerHTML = `<table class="cot-table num"><thead><tr><th>Pasar</th><th>Pengaruh ke</th><th>Taruhan bersih</th><th>Porsi dari semua kontrak</th><th>Berubah 1 minggu</th><th>Berubah 4 minggu</th><th>Seberapa ramai (3 tahun)</th><th>Setahun terakhir</th></tr></thead><tbody>${rows.map((c, k) => {
     if (!c || c.error) return `<tr><td>${esc(NAME(ids[k]))}</td><td colspan="7" class="muted">${esc((c && c.error) || 'Tidak tersedia')}</td></tr>`;
     const ci = cotText(c), sg = (v) => `<span class="${v * (c.invert ? -1 : 1) >= 0 ? 'up-t' : 'down-t'}">${v >= 0 ? '+' : '−'}${fmtNum(Math.abs(v))}</span>`;
     return `<tr><td><b>${esc(c.market)}</b><br><span class="muted" style="font-family:var(--sans)">${esc(c.who)}</span></td>
       <td><b>${esc(NAME(ids[k]))}</b><br><span class="${toneOf(ci.dir)}-t" style="font-family:var(--sans)">${arrow(ci.dir)} ${esc(ci.head)}</span></td>
-      <td>${c.net >= 0 ? 'long' : 'short'} ${fmtNum(Math.abs(c.net))}</td><td>${c.pctOI.toFixed(1)}%</td><td>${sg(c.chg1w)}</td><td>${sg(c.chg4w)}</td>
+      <td>${c.net >= 0 ? 'bertaruh naik' : 'bertaruh turun'} ${fmtNum(Math.abs(c.net))}</td><td>${c.pctOI.toFixed(1)}%</td><td>${sg(c.chg1w)}</td><td>${sg(c.chg4w)}</td>
       <td><div class="gauge-sm" title="${c.index} dari 100"><i style="left:${c.index}%"></i></div><span class="muted">${c.index}/100${c.index >= 90 ? ' · sangat ramai' : c.index <= 10 ? ' · sangat sepi' : ''}</span></td>
       <td>${sparkSvg(c.history, c.net >= 0 ? 'var(--up)' : 'var(--down)')}</td></tr>`;
   }).join('')}</tbody></table><p class="note">Laporan per ${rows.find((c) => c && c.date) ? new Date(rows.find((c) => c && c.date).date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '–'}. Untuk yen, net long yen berarti arah turun untuk USD/JPY.</p>`;
@@ -1013,24 +1103,29 @@ function failBox(box, title, e) { box.innerHTML = `<div class="state"><b>${esc(t
 async function renderRegime() {
   const box = $('#view-regime'); if (box.hidden) return;
   if (!mkt) box.innerHTML = '<div class="state"><b>Membaca kondisi pasar…</b></div>';
-  let d; try { d = await loadMarket(); } catch (e) { return failBox(box, 'Regime pasar tidak bisa dibaca', e); }
+  let d; try { d = await loadMarket(); } catch (e) { return failBox(box, 'Kondisi pasar tidak bisa dibaca', e); }
   if (box.hidden) return;
-  const m = d.mood;
+  const m = d.mood, P = (v) => `${Math.abs(v).toFixed(1).replace('.', ',')}%`;
   const advice = (a) => {
-    const t = a.trend === 'naik' || a.trend === 'turun' ? 'Sinyal searah tren lebih bisa diandalkan.' : a.trend === 'menyamping' ? 'Sinyal tren sering gagal; lebih aman menunggu harga menembus batas.' : 'Arah sedang berganti; tunggu konfirmasi.';
-    const v = a.volLabel === 'tinggi' ? ' Volatilitas tinggi: kecilkan lot, stop loss lebih lebar.' : a.volLabel === 'rendah' ? ' Volatilitas rendah: gerakan kecil, target jangan terlalu jauh.' : '';
+    const t = a.trend === 'naik' ? 'Arahnya jelas naik. Kalau mau masuk, pilih BUY; jangan melawan dengan SELL.'
+      : a.trend === 'turun' ? 'Arahnya jelas turun. Kalau mau masuk, pilih SELL; jangan melawan dengan BUY.'
+      : a.trend === 'menyamping' ? 'Harga hanya bolak-balik. Tunggu harga keluar dari jalurnya sebelum masuk.'
+      : 'Arah sedang berganti. Tunggu sampai arah barunya jelas.';
+    const v = a.volLabel === 'tinggi' ? ' Harga sedang sangat liar: kecilkan lot dan beri stop loss lebih jauh.' : a.volLabel === 'rendah' ? ' Harga bergerak pelan: pasang target untung yang dekat saja.' : '';
     return t + v;
   };
-  box.innerHTML = `<div class="view-head"><h1>Regime pasar</h1><span class="muted">timeframe harian · diperbarui ${new Date(d.updated).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span></div>
-    ${m ? `<div class="mood"><div><div class="label">Suasana pasar 20 hari</div><div class="big ${toneOf(m.dir)}-t">${esc(m.label)}</div></div>
-      <p>Aset berisiko (kripto${d.needsKey ? '' : ', saham'}) ${m.risk >= 0 ? 'naik' : 'turun'} rata-rata ${pct(Math.abs(m.risk), 1).slice(1)}, aset aman (emas${d.needsKey ? '' : ', yen'}) ${m.safe >= 0 ? 'naik' : 'turun'} ${pct(Math.abs(m.safe), 1).slice(1)}. ${m.dir < 0 ? 'Pelaku pasar sedang berhati-hati; aset berisiko cenderung tertekan.' : m.dir > 0 ? 'Pelaku pasar sedang berani; aset berisiko cenderung didukung.' : 'Tidak ada kecenderungan yang jelas.'}</p></div>` : ''}
-    <div class="card"><div class="scroll-x"><table class="rg-table"><thead><tr><th>Aset</th><th>Kondisi tren</th><th>Kekuatan tren (ADX)</th><th>Volatilitas</th><th>20 hari</th><th>Artinya</th></tr></thead><tbody>
+  const strength = (x) => x == null ? '–' : x >= 25 ? 'Kuat' : x >= 20 ? 'Sedang' : 'Lemah';
+  const liar = { tinggi: 'Sangat liar', normal: 'Normal', rendah: 'Tenang' };
+  box.innerHTML = `<div class="view-head"><h1>Kondisi pasar</h1><span class="muted">dari grafik harian · diperbarui ${new Date(d.updated).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span></div>
+    ${m ? `<div class="mood"><div><div class="label">Suasana pasar sebulan terakhir</div><div class="big ${toneOf(m.dir)}-t">${esc(m.label)}</div></div>
+      <p>Aset berisiko seperti kripto${d.needsKey ? '' : ' dan saham'} ${m.risk >= 0 ? 'naik' : 'turun'} rata-rata ${P(m.risk)}, sedangkan emas${d.needsKey ? '' : ' dan yen'} ${m.safe >= 0 ? 'naik' : 'turun'} ${P(m.safe)}. ${m.dir < 0 ? 'Banyak orang sedang menjual aset berisiko. <b>Artinya:</b> hati-hati BUY kripto; arah turun masih dominan.' : m.dir > 0 ? 'Banyak orang sedang membeli aset berisiko. <b>Artinya:</b> kripto dan saham cenderung didukung naik.' : '<b>Artinya:</b> belum ada kecenderungan jelas; lebih selektif memilih posisi.'}</p></div>` : ''}
+    <div class="card"><div class="scroll-x"><table class="rg-table"><thead><tr><th>Aset</th><th>Arah harga</th><th>Seberapa kuat arahnya</th><th>Seberapa liar</th><th>Sebulan terakhir</th><th>Yang sebaiknya dilakukan</th></tr></thead><tbody>
     ${d.assets.map((a) => { const [tl, td] = TREND[a.trend]; return `<tr><td><b>${esc(a.name)}</b></td><td><span class="pill ${toneOf(td)}">${arrow(td)} ${tl}</span></td>
-      <td class="num">${a.adx != null ? a.adx.toFixed(0) : '–'} <span class="muted" style="font-family:var(--sans)">${a.adx >= 25 ? 'kuat' : a.adx >= 20 ? 'sedang' : 'lemah'}</span></td>
-      <td><span class="vbar"><i style="width:${a.volPct}%"></i></span><span>${a.volLabel}</span> <span class="muted num">${a.volPct}/100</span></td>
-      <td class="num ${a.mChg >= 0 ? 'up-t' : 'down-t'}">${pct(a.mChg, 1)}</td><td class="muted" style="min-width:240px">${advice(a)}</td></tr>`; }).join('')}
+      <td>${strength(a.adx)}</td>
+      <td><span class="vbar"><i style="width:${a.volPct}%"></i></span>${liar[a.volLabel]}</td>
+      <td class="num ${a.mChg >= 0 ? 'up-t' : 'down-t'}">${pct(a.mChg, 1)}</td><td style="min-width:260px">${advice(a)}</td></tr>`; }).join('')}
     </tbody></table></div></div>
-    <p class="note" style="margin:0">Volatilitas dibandingkan dengan satu tahun terakhir: 100 berarti paling liar dalam setahun. Regime dihitung dari harga, bukan dari data ekonomi.</p>${keyHint(d)}`;
+    <p class="note" style="margin:0">"Seberapa liar" dibandingkan dengan setahun terakhir. Semua dihitung dari pergerakan harga.</p>${keyHint(d)}`;
 }
 
 // ---------- Rekap ----------
@@ -1054,10 +1149,16 @@ async function renderRekap() {
     gold ? `Emas ${gold.dayChg >= 0 ? 'naik' : 'turun'} ${pct(Math.abs(gold.dayChg)).replace('+', '')} hari ini dan ${gold.weekChg >= 0 ? 'naik' : 'turun'} ${pct(Math.abs(gold.weekChg)).replace('+', '')} sejak Senin, dengan rentang ${gold.rangeRatio != null ? (gold.rangeRatio * 100).toFixed(0) + '% dari rata-rata harian' : '–'}.` : '',
     wild.length ? `Lebih liar dari biasanya: ${wild.map((a) => esc(a.name)).join(', ')}.` : calm.length === A.length ? 'Semua aset bergerak lebih tenang dari biasanya hari ini.' : '',
     `Minggu ini ${up} dari ${A.length} aset naik.`,
-    released.length ? `Berita besar yang sudah rilis minggu ini: ${released.map((e) => esc(e.cur + ' ' + e.title)).join(', ')}.` : 'Belum ada berita besar yang rilis minggu ini.',
-    d.mood ? `Suasana pasar 20 hari: ${esc(d.mood.label.toLowerCase())}.` : '',
+    released.length ? `Berita besar yang sudah keluar minggu ini: ${released.map((e) => esc(evName(e))).join(', ')}.` : 'Belum ada berita besar yang keluar minggu ini.',
+    d.mood ? `Suasana sebulan terakhir: ${esc(d.mood.label.toLowerCase())}.` : '',
   ].filter(Boolean);
-  box.innerHTML = `<div class="view-head"><h1>Rekap pasar</h1><span class="muted">hari ini dimulai 00.00 UTC (07.00 WIB) · minggu dimulai Senin</span></div>
+  const todayEnd = new Date(); todayEnd.setHours(23, 59, 59, 999);
+  const bigToday = ((evData && evData.events) || []).filter((e) => e.t > now && e.t <= todayEnd.getTime() && e.impact === 'High' && e.affects.length);
+  const todo = { title: bigToday.length ? 'Hati-hati di jam berita hari ini' : 'Hari ini relatif aman dari berita besar', tone: bigToday.length ? 'wait' : 'up', steps: [
+    ...(bigToday.length ? [`Berita besar hari ini: ${bigToday.map((e) => `${evName(e)} jam ${new Date(e.t).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`).join('; ')}. Jangan buka posisi 30 menit sebelum dan sesudahnya.`] : ['Tidak ada berita besar lagi hari ini untuk aset yang dipantau.']),
+    d.mood && d.mood.dir < 0 ? 'Pasar sedang takut: hati-hati BUY kripto, arah turun masih dominan.' : d.mood && d.mood.dir > 0 ? 'Pasar sedang berani: kripto cenderung didukung naik.' : 'Suasana pasar sedang ragu: pilih posisi dengan lebih selektif.',
+    'Cek halaman Ringkasan untuk saran per aset, lalu halaman Analisa untuk level masuk dan stop loss.'] };
+  box.innerHTML = `${actionHtml(todo)}<div class="view-head"><h1>Rekap pasar</h1><span class="muted">hari ini dimulai 00.00 UTC (07.00 WIB) · minggu dimulai Senin</span></div>
     <div class="card"><h2>Ringkasan</h2><ul class="story">${story.map((x) => `<li>${x}</li>`).join('')}</ul></div>
     <div class="two top"><div class="card"><h2>Hari ini</h2><div class="movers">${movers('dayChg')}</div></div><div class="card"><h2>Sejak Senin</h2><div class="movers">${movers('weekChg')}</div></div></div>
     <div class="card"><div class="news-tools"><h2>Berita yang sudah rilis</h2><a class="btn" href="#berita">Semua berita</a></div>${squawkHtml(((evData && evData.events) || []).filter((e) => e.t <= now && (e.impact === 'High' || e.impact === 'Medium') && e.affects.length).reverse())}</div>${keyHint(d)}`;
@@ -1065,51 +1166,64 @@ async function renderRekap() {
 
 // ---------- Penggerak pasar ----------
 let drvId = store.get('drv', 'xauusd');
+const sigCache = {};
+async function loadSig(id) {
+  if (sigCache[id] && Date.now() - sigCache[id].at < 120e3) return sigCache[id].v;
+  try { const v = await api(`/api/analyze?id=${encodeURIComponent(id)}&tf=4h&lite=1`); sigCache[id] = { at: Date.now(), v }; return v; } catch (e) { return { error: e.message }; }
+}
 async function renderPenggerak() {
   const box = $('#view-penggerak'); if (box.hidden) return;
-  if (!mkt) box.innerHTML = '<div class="state"><b>Membaca penggerak pasar…</b></div>';
+  if (!mkt) box.innerHTML = '<div class="state"><b>Membaca apa yang menggerakkan harga…</b></div>';
   let d; try { d = await loadMarket(); await loadEvents(); } catch (e) { return failBox(box, 'Penggerak pasar tidak bisa dibaca', e); }
   if (box.hidden) return;
   const A = Object.fromEntries(d.assets.map((a) => [a.id, a]));
   if (!A[drvId]) drvId = d.assets[0] ? d.assets[0].id : 'xauusd';
-  const me = A[drvId], cot = COT_IDS.includes(drvId) ? await loadCot(drvId) : null;
+  const me = A[drvId];
+  const [cot, sig] = await Promise.all([COT_IDS.includes(drvId) ? loadCot(drvId) : null, loadSig(drvId)]);
   if (box.hidden) return;
-  const ev = (evData && evData.events) || [], now = Date.now();
+  const ev = (evData && evData.events) || [], now = Date.now(), P = (v) => `${Math.abs(v).toFixed(1).replace('.', ',')}%`;
   const eur = A.eurusd, usdDir = eur ? -Math.sign(Math.round(eur.mChg * 10)) : null;
-  const usdRead = eur ? `Dolar ${usdDir > 0 ? 'menguat' : usdDir < 0 ? 'melemah' : 'datar'} dalam 20 hari (EUR/USD ${pct(eur.mChg, 1)}).` : null;
+  const usdRead = eur ? `Dolar sedang ${usdDir > 0 ? 'menguat' : usdDir < 0 ? 'melemah' : 'diam'} dalam sebulan terakhir.` : null;
   const curEvents = (cur) => { const left = ev.filter((e) => e.cur === cur && e.impact === 'High' && e.t > now); const nx = left[0];
-    return left.length ? `${left.length} berita berdampak tinggi ${cur} tersisa minggu ini. Berikutnya: ${nx.title}, ${untilText(nx.t)}.` : `Tidak ada berita berdampak tinggi ${cur} tersisa minggu ini.`; };
+    return left.length ? `Masih ada ${left.length} berita penting ${cur} minggu ini. Terdekat: ${plainTitle(nx.title) || nx.title}, ${untilText(nx.t)}.` : `Tidak ada lagi berita penting ${cur} minggu ini.`; };
   const mood = d.mood, tr = me ? TREND[me.trend] : ['–', 0];
   const D = (name, why, read, dir) => ({ name, why, read, dir });
-  const trendDrv = me ? D('Tren & volatilitas', 'Kondisi harga sendiri: arah tren harian dan seberapa liar geraknya.', `${tr[0]}, ADX ${me.adx != null ? me.adx.toFixed(0) : '–'}, volatilitas ${me.volLabel}. Harga ${pct(me.mChg, 1)} dalam 20 hari.`, tr[1]) : null;
-  const moodDrv = (sign, why) => D('Selera risiko', why, mood ? `${mood.label}: aset berisiko ${pct(mood.risk, 1)}, aset aman ${pct(mood.safe, 1)} dalam 20 hari.` : null, mood ? mood.dir * sign : 0);
-  const cotDrv = cot && !cot.error && !cot.none ? (() => { const ci = cotText(cot); return D('Posisi dana besar (COT)', 'Arah taruhan dana spekulatif besar di bursa berjangka AS.', ci.text, ci.dir); })() : null;
-  const none = 'Belum ada sumber data gratis untuk ini.';
+  const none = 'Belum ada data gratis untuk ini, jadi tidak dihitung.';
+  const liar = me ? { tinggi: 'sangat liar', normal: 'normal', rendah: 'tenang' }[me.volLabel] : '';
+  const trendDrv = me ? D('Arah harga saat ini', 'Ke mana harga bergerak belakangan ini, dan seberapa liar.', `Harga ${me.mChg >= 0 ? 'naik' : 'turun'} ${P(me.mChg)} dalam sebulan. ${tr[1] > 0 ? 'Arahnya jelas naik.' : tr[1] < 0 ? 'Arahnya jelas turun.' : 'Arahnya belum jelas.'} Geraknya ${liar}.`, tr[1]) : null;
+  const fear = mood ? (mood.risk < -5 ? 'takut' : mood.risk > 5 ? 'berani' : 'ragu') : null;
+  const moodRead = mood ? `Kripto${d.needsKey ? '' : ' dan saham'} ${mood.risk >= 0 ? 'naik' : 'turun'} ${P(mood.risk)} dalam sebulan: pasar sedang ${fear}.` : null;
+  const cotDrv = cot && !cot.error && !cot.none ? (() => { const ci = cotText(cot); return D('Taruhan dana besar', 'Ke arah mana hedge fund besar sedang bertaruh (data mingguan dari regulator AS).', ci.text, ci.dir); })() : null;
   let list = [];
   if (drvId === 'xauusd') list = [
-    D('Dolar AS', 'Emas dihargai dalam dolar; dolar menguat biasanya menekan emas.', usdRead || 'Butuh API key Twelve Data untuk membaca arah dolar.', usdDir != null ? -usdDir : 0),
-    D('Berita ekonomi AS', 'Inflasi, tenaga kerja, dan keputusan Fed mengubah perkiraan suku bunga, penggerak terbesar emas.', curEvents('USD'), 0),
-    D('Selera risiko', 'Saat pasar takut, emas sering dicari sebagai aset aman.', mood ? `Aset berisiko ${pct(mood.risk, 1)} dalam 20 hari: pasar ${mood.risk < -5 ? 'sedang takut' : mood.risk > 5 ? 'sedang berani' : 'tidak terlalu takut atau berani'}.` : null, mood ? (mood.risk < -5 ? 1 : mood.risk > 5 ? -1 : 0) : 0), cotDrv, trendDrv,
-    D('Suku bunga riil & pembelian bank sentral', 'Imbal hasil obligasi setelah inflasi dan pembelian emas oleh bank sentral.', none, 0)];
+    D('Dolar AS', 'Emas dibeli pakai dolar. Kalau dolar kuat, emas biasanya turun.', usdRead || 'Belum bisa dibaca: perlu API key Twelve Data (gratis) di pengaturan.', usdDir != null ? -usdDir : 0),
+    D('Berita ekonomi AS', 'Berita inflasi, lapangan kerja, dan suku bunga AS sering membuat emas bergerak tajam.', curEvents('USD'), 0),
+    D('Rasa takut di pasar', 'Saat orang takut, mereka sering memindahkan uang ke emas.', moodRead, mood ? (mood.risk < -5 ? 1 : mood.risk > 5 ? -1 : 0) : 0), cotDrv, trendDrv,
+    D('Suku bunga & pembelian bank sentral', 'Bunga obligasi dan pembelian emas oleh bank sentral dunia.', none, 0)];
   else if (me && me.type === 'crypto') list = [
-    moodDrv(1, 'Kripto bergerak seperti aset berisiko: naik saat pasar berani, turun saat takut.'),
-    D('Dolar AS & The Fed', 'Suku bunga AS yang tinggi dan dolar kuat biasanya menekan kripto.', usdRead ? usdRead + ' ' + curEvents('USD') : curEvents('USD'), usdDir != null ? -usdDir : 0),
-    drvId !== 'btcusd' && A.btcusd ? D('Arah Bitcoin', 'Kripto lain umumnya mengikuti arah BTC.', `BTC ${pct(A.btcusd.mChg, 1)} dalam 20 hari, ${TREND[A.btcusd.trend][0].toLowerCase()}.`, TREND[A.btcusd.trend][1]) : null,
-    trendDrv, D('Aliran dana ETF & data on-chain', 'Dana masuk/keluar ETF kripto dan aktivitas jaringan.', none, 0)];
+    D('Rasa takut di pasar', 'Kripto ikut naik saat orang berani, dan ikut jatuh saat orang takut.', moodRead, mood ? mood.dir : 0),
+    D('Dolar AS & suku bunga AS', 'Dolar yang kuat dan bunga AS yang tinggi biasanya menekan kripto.', usdRead ? usdRead + ' ' + curEvents('USD') : curEvents('USD'), usdDir != null ? -usdDir : 0),
+    drvId !== 'btcusd' && A.btcusd ? D('Arah Bitcoin', 'Kripto lain biasanya mengikuti arah Bitcoin.', `Bitcoin ${A.btcusd.mChg >= 0 ? 'naik' : 'turun'} ${P(A.btcusd.mChg)} dalam sebulan.`, TREND[A.btcusd.trend][1]) : null,
+    trendDrv, D('Uang masuk ke ETF kripto', 'Banyak-sedikitnya uang investor besar yang masuk lewat ETF.', none, 0)];
   else if (me && me.type === 'forex') { const [b, q] = me.name.split('/'); list = [
-    D(`Berita ${b} & ${q}`, 'Data ekonomi dan bank sentral kedua mata uang menentukan arah pasangan ini.', curEvents(b) + ' ' + curEvents(q), 0),
-    drvId === 'usdjpy' ? moodDrv(1, 'Yen dicari saat pasar takut, jadi USD/JPY cenderung turun saat risk-off.') : null,
-    cotDrv, trendDrv, D('Selisih suku bunga', 'Mata uang dengan suku bunga lebih tinggi cenderung lebih diminati.', none, 0)]; }
+    D(`Berita ${b} dan ${q}`, 'Berita ekonomi kedua negara menentukan arah pasangan ini.', curEvents(b) + ' ' + curEvents(q), 0),
+    drvId === 'usdjpy' ? D('Rasa takut di pasar', 'Saat orang takut, yen dicari, sehingga USD/JPY cenderung turun.', moodRead, mood ? mood.dir : 0) : null,
+    cotDrv, trendDrv, D('Selisih suku bunga', 'Mata uang dengan bunga lebih tinggi biasanya lebih dicari.', none, 0)]; }
   else if (me) list = [
-    moodDrv(1, 'Saham naik saat pasar berani mengambil risiko.'),
-    D('Berita ekonomi AS', 'Data ekonomi dan Fed memengaruhi valuasi saham.', curEvents('USD'), 0),
-    trendDrv, D('Laporan keuangan perusahaan', 'Laba dan proyeksi perusahaan.', none, 0)];
+    D('Rasa takut di pasar', 'Saham naik saat orang berani, turun saat orang takut.', moodRead, mood ? mood.dir : 0),
+    D('Berita ekonomi AS', 'Data ekonomi dan bunga AS memengaruhi harga saham.', curEvents('USD'), 0),
+    trendDrv, D('Laporan keuangan perusahaan', 'Laba dan rencana perusahaan.', none, 0)];
   list = list.filter(Boolean);
   const counted = list.filter((x) => x.read && x.read !== none), nUp = counted.filter((x) => x.dir > 0).length, nDn = counted.filter((x) => x.dir < 0).length;
-  box.innerHTML = `<div class="view-head"><h1>Penggerak pasar</h1><span class="muted">apa yang sedang mendorong harga</span></div>
+  const act = decideAction({ sig, ev: eventsFor(drvId), drivers: { nUp, nDn }, vol: me && me.volLabel, name: me && me.name });
+  const head = nUp && !nDn ? ['up', '↑ Semua mendorong naik'] : nDn && !nUp ? ['down', '↓ Semua mendorong turun'] : nUp && nDn ? ['wait', '⇅ Sinyal campur aduk'] : ['wait', '→ Belum ada dorongan jelas'];
+  box.innerHTML = `<div class="view-head"><h1>Penggerak pasar</h1><span class="muted">apa yang sedang mendorong harga naik atau turun</span></div>
     <div class="picker" id="drv-pick">${d.assets.map((a) => `<button data-drv="${esc(a.id)}" aria-pressed="${a.id === drvId}">${esc(a.name)}</button>`).join('')}</div>
-    ${me ? `<div class="mood"><div><div class="label">${esc(me.name)} · gabungan penggerak</div><div class="big ${toneOf(nUp && !nDn ? 1 : nDn && !nUp ? -1 : 0)}-t">${nUp && !nDn ? '↑ Searah naik' : nDn && !nUp ? '↓ Searah turun' : nUp && nDn ? '⇅ Saling bertentangan' : '→ Belum ada dorongan jelas'}</div></div><p>${nUp} penggerak mendorong naik, ${nDn} mendorong turun. ${nUp && nDn ? 'Saat penggerak bertentangan, harga sering bergerak tidak menentu; jangan memperbesar posisi. ' : ''}Penggerak tanpa data tidak dihitung. Ini gambaran konteks, bukan sinyal masuk.</p></div>` : ''}
-    <div class="drivers">${list.map((x) => { const nod = !x.read || x.read === none; return `<div class="drv ${nod ? 'nodata' : ''}"><div class="drv-h"><b>${esc(x.name)}</b><span class="eff ${nod ? 'wait' : toneOf(x.dir)}">${nod ? 'tanpa data' : x.dir > 0 ? '↑ dorong naik' : x.dir < 0 ? '↓ dorong turun' : '→ netral'}</span></div><p class="why">${esc(x.why)}</p><p class="read">${esc(x.read || none)}</p></div>`; }).join('')}</div>${keyHint(d)}`;
+    ${me ? `<div class="two top">
+      <div class="mood" style="height:100%;flex-direction:column;align-items:flex-start;justify-content:center"><div><div class="label">${esc(me.name)} · kesimpulan</div><div class="big ${head[0]}-t">${head[1]}</div></div><p>${nUp} hal mendorong harga naik dan ${nDn} hal mendorong turun.${nUp && nDn ? ' Kalau dorongannya bertentangan, harga sering bergerak tidak menentu.' : ''} Hal yang belum ada datanya tidak dihitung.</p></div>
+      ${actionHtml(act)}</div>` : ''}
+    <div class="drivers">${list.map((x) => { const nod = !x.read || x.read === none; return `<div class="drv ${nod ? 'nodata' : ''}"><div class="drv-h"><b>${esc(x.name)}</b><span class="eff ${nod ? 'wait' : toneOf(x.dir)}">${nod ? 'belum ada data' : x.dir > 0 ? '↑ mendukung naik' : x.dir < 0 ? '↓ mendukung turun' : '→ belum berpengaruh'}</span></div><p class="why">${esc(x.why)}</p><p class="read">${esc(x.read || none)}</p></div>`; }).join('')}</div>
+    <p class="note" style="margin:0">Saran di atas memakai sinyal grafik 4 jam. Ini alat bantu, bukan jaminan: hasil uji sinyal di 4 jam hanya sedikit lebih baik dari untung-untungan.</p>${keyHint(d)}`;
 }
 document.addEventListener('click', (e) => { const b = e.target.closest('[data-drv]'); if (!b) return; drvId = b.dataset.drv; store.set('drv', drvId); renderPenggerak(); });
 
@@ -1291,6 +1405,14 @@ $('#btn-theme').addEventListener('click', () => {
   else if (chart) { chart.remove(); chart = null; chartKey = ''; }
 });
 paintThemeBtn();
+function applySide(open) {
+  $('#shell').classList.toggle('side-off', !open);
+  $('#btn-side').setAttribute('aria-expanded', String(open));
+  $('#btn-side').setAttribute('aria-label', open ? 'Sembunyikan menu' : 'Tampilkan menu');
+  if (chart) setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+}
+applySide(store.get('side', 'open') !== 'closed');
+$('#btn-side').addEventListener('click', () => { const open = $('#shell').classList.contains('side-off'); store.set('side', open ? 'open' : 'closed'); applySide(open); });
 
 function showLogin(message) {
   state.authLost = true;
