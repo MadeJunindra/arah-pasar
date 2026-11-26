@@ -1,0 +1,4 @@
+config.json
+.ff-cache.json
+.reactions.json
+node_modules/
