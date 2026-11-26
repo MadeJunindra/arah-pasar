@@ -215,6 +215,36 @@ a.btn { color: inherit; text-decoration: none; display: inline-block; }
 .matrix th { font-weight: 600; color: var(--muted); padding: 4px 6px; white-space: nowrap; }
 .matrix td { width: 64px; height: 40px; text-align: center; border-radius: 8px; font-weight: 600; }
 .insights { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+/* Riwayat reaksi (panel samping) */
+#drawer { position: fixed; inset: 0; z-index: 40; }
+.drawer-back { position: absolute; inset: 0; background: rgba(10,20,35,.45); }
+.drawer-panel { position: absolute; top: 0; right: 0; bottom: 0; width: min(760px, 100%); background: var(--bg); border-left: 1px solid var(--line); overflow-y: auto; padding: 16px max(16px, env(safe-area-inset-right, 0px)) 24px 20px; display: flex; flex-direction: column; gap: 14px; }
+.drawer-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; position: sticky; top: -16px; background: var(--bg); padding: 4px 0 8px; z-index: 1; }
+.drawer-top b { font-size: 17px; }
+.link-btn { border: 0; background: none; color: var(--accent); font-weight: 600; font-size: 12px; padding: 0; cursor: pointer; }
+.link-btn:hover { text-decoration: underline; }
+.hist-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.hist-table th, .hist-table td { padding: 8px 8px; border-top: 1px solid var(--line); text-align: right; white-space: nowrap; }
+.hist-table th:first-child, .hist-table td:first-child { text-align: left; }
+.hist-table th { color: var(--muted); font-weight: 500; font-size: 12px; border-top: 0; }
+.hist-table td small { display: block; color: var(--muted); font-size: 11px; }
+/* Strategi portofolio */
+.pf-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.pf { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.pf h2 { margin: 0; font-size: 16px; }
+.pf p { margin: 0; font-size: 13px; color: var(--muted); }
+.pf svg.curve { width: 100%; height: auto; display: block; }
+.pf-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; text-align: center; }
+.pf-metrics div { background: var(--panel-2); border-radius: 10px; padding: 8px 4px; }
+.pf-metrics small { display: block; font-size: 11px; color: var(--muted); font-family: var(--sans); }
+.pf-metrics b { font-size: 18px; }
+.pf-now { font-size: 13px; }
+.pf details summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: 13px; }
+.pf details[open] summary { margin-bottom: 8px; }
+.pf-legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+.pf-legend i { display: inline-block; width: 12px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 4px; }
+.warn-box { background: var(--wait-bg); border: 1px solid var(--wait); border-radius: var(--radius); padding: 12px 16px; font-size: 13px; }
+.warn-box ul { margin: 6px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
 /* Kotak tindakan */
 .todo { border-radius: var(--radius); padding: 16px 18px; border: 1px solid var(--line); background: var(--panel); box-shadow: var(--shadow); }
 .todo.up { border-color: var(--up); background: linear-gradient(180deg, var(--up-bg), var(--panel) 70%); }
@@ -311,6 +341,12 @@ a.btn { color: inherit; text-decoration: none; display: inline-block; }
 .scroll-x { overflow-x: auto; }
 
 @media (max-width: 900px) {
+  header.top { position: static; gap: 8px; padding: 10px 12px; }
+  #who { display: none; }
+  .theme-btn span { display: none; }
+  .theme-btn { width: 38px; height: 38px; justify-content: center; padding: 0; }
+  #tfs { order: 5; width: 100%; overflow-x: auto; flex-wrap: nowrap; }
+  #tfs button { flex: 1 0 auto; white-space: nowrap; }
   .shell { grid-template-columns: minmax(0, 1fr); }
   .side { position: sticky; top: 0; z-index: 4; height: auto; flex-direction: row; overflow-x: auto; padding: 8px 12px; border-right: 0; border-bottom: 1px solid var(--line); }
   .side-h { display: none; }
@@ -318,6 +354,9 @@ a.btn { color: inherit; text-decoration: none; display: inline-block; }
   .side button[aria-current="page"] { box-shadow: inset 0 -2px 0 var(--accent); }
   .explain { grid-template-columns: minmax(0, 1fr); }
   .map { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pf-grid { grid-template-columns: minmax(0, 1fr); }
+  .react span { white-space: normal; }
+  .drawer-panel { padding-left: 16px; }
   .map .tile { grid-column: auto !important; grid-row: auto !important; }
   .mv { grid-template-columns: 70px minmax(0, 1fr) 64px; }
   .angles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -361,6 +400,7 @@ a.btn { color: inherit; text-decoration: none; display: inline-block; }
   <div class="side-h">Aksi</div>
   <button data-view="ringkasan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Ringkasan</span></button>
   <button data-view="analisa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg><span>Analisa &amp; sinyal</span></button>
+  <button data-view="strategi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v9l7 4"/><circle cx="12" cy="12" r="9"/></svg><span>Strategi portofolio</span></button>
 </nav>
 <div class="layout" id="layout">
   <aside>
@@ -383,6 +423,7 @@ a.btn { color: inherit; text-decoration: none; display: inline-block; }
     <section id="view-regime" class="view" hidden></section>
     <section id="view-rekap" class="view" hidden></section>
     <section id="view-peta" class="view" hidden></section>
+    <section id="view-strategi" class="view" hidden></section>
     <section id="view-korelasi" hidden></section>
     <div id="detail"><div class="state"><b>Memuat data pasar…</b></div></div>
     <footer>Aplikasi ini alat bantu analisa, bukan nasihat keuangan. Sinyal dihitung dari indikator teknikal dan bisa salah. Selalu pakai stop loss dan atur ukuran posisi sesuai risiko yang sanggup Anda tanggung.</footer>
@@ -399,6 +440,14 @@ a.btn { color: inherit; text-decoration: none; display: inline-block; }
     <button class="btn primary" type="submit" id="login-btn">Masuk</button>
     <p class="note" style="margin:0">Satu akun hanya bisa aktif di satu perangkat. Masuk di perangkat lain akan mengeluarkan sesi yang lama.</p>
   </form>
+</div>
+
+<div id="drawer" hidden>
+  <div class="drawer-back" data-close></div>
+  <div class="drawer-panel" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+    <div class="drawer-top"><b id="drawer-title">Riwayat reaksi</b><button class="btn" type="button" data-close>Tutup</button></div>
+    <div id="drawer-body"></div>
+  </div>
 </div>
 
 <dialog id="dlg">
@@ -470,10 +519,10 @@ function renderWatchlist() {
     else if (r) {
       px = fmt(r.price, r.dec);
       ch = `<span data-ch="${esc(r.stream || '')}" class="ch num ${r.change24h >= 0 ? 'up' : 'down'}">${r.change24h >= 0 ? '+' : ''}${r.change24h.toFixed(2)}%</span>`;
-      tags = `<span class="pill ${biasTone(r.score)}">${esc(r.bias)}</span><span class="pill ${tone(r)}">${esc(r.action)}</span>${r.news.danger ? '<span title="Berita berdampak tinggi sebentar lagi">⚠ berita</span>' : ''}`;
+      tags = `<span class="pill ${biasTone(r.score)}">${esc(BIAS_ID[r.bias] || r.bias)}</span><span class="pill ${tone(r)}">${esc(r.action)}</span>${r.news.danger ? '<span title="Berita berdampak tinggi sebentar lagi">⚠ berita</span>' : ''}`;
     }
     return `<li class="${r && r.error ? 'dim' : ''}"><button data-id="${esc(it.id)}" aria-current="${it.id === state.id}">
-      <span class="nm">${esc(it.name)}</span><span class="px num" data-px="${esc(r && r.stream || '')}" data-dec="${r && r.dec != null ? r.dec : 2}">${px}</span>
+      <span class="nm">${esc(it.name)}</span><span class="px num" data-px="${esc(r && r.stream || '')}" data-mul="${r && r.mul || 1}" data-dec="${r && r.dec != null ? r.dec : 2}">${px}</span>
       <span class="ds">${esc(it.desc)}</span>${ch || '<span></span>'}
       <span class="tags">${tags}${it.custom ? `<span class="x" data-del="${esc(it.id)}" title="Hapus dari daftar" role="button">✕</span>` : ''}</span>
     </button></li>`;
@@ -698,7 +747,7 @@ function renderMtf() {
   mtf.rows[a.tf] = a;
   box.innerHTML = Object.keys(TF_LABEL).map((tf) => {
     const r = mtf.rows[tf];
-    const inner = r ? (r.error ? '<b class="muted">gagal</b>' : `<b class="${biasTone(r.score)}-t">${esc(r.bias)}</b>`) : (a.stream || mtf.asked ? '<b class="muted">…</b>' : '<b class="muted">klik untuk muat</b>');
+    const inner = r ? (r.error ? '<b class="muted">gagal</b>' : `<b class="${biasTone(r.score)}-t">${esc(BIAS_ID[r.bias] || r.bias)}</b>`) : (a.stream || mtf.asked ? '<b class="muted">…</b>' : '<b class="muted">klik untuk muat</b>');
     return `<button data-mtf="${tf}" aria-pressed="${tf === a.tf}"><small>${TF_LABEL[tf]}</small>${inner}</button>`;
   }).join('');
   renderAngles();
@@ -745,11 +794,11 @@ function onStream(msg) {
   const d = msg.data, a = state.detail; if (!d) return;
   if (d.e === '24hrMiniTicker') {
     const price = +d.c, chg = (price - +d.o) / +d.o * 100, up = price >= (lastPx[d.s] || price); const moved = price !== lastPx[d.s]; lastPx[d.s] = price;
-    document.querySelectorAll(`[data-px="${d.s}"]`).forEach((el) => { el.textContent = fmt(price, +el.dataset.dec); if (moved) flash(el, up); });
+    document.querySelectorAll(`[data-px="${d.s}"]`).forEach((el) => { el.textContent = fmt(price * (+el.dataset.mul || 1), +el.dataset.dec); if (moved) flash(el, up); });
     document.querySelectorAll(`[data-ch="${d.s}"]`).forEach((el) => { el.textContent = `${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%`; el.className = `ch num ${chg >= 0 ? 'up' : 'down'}`; });
   } else if (d.e === 'kline' && a && a.stream === d.s && d.k.i === a.tf && liveSeries) {
-    const k = d.k, t = k.t / 1000, price = +k.c;
-    if (t >= liveLastT) { try { liveSeries.update({ time: t + liveOff, open: +k.o, high: +k.h, low: +k.l, close: price }); } catch {} liveLastT = t; }
+    const k = d.k, t = k.t / 1000, mul = a.mul || 1, price = +k.c * mul;
+    if (t >= liveLastT) { try { liveSeries.update({ time: t + liveOff, open: +k.o * mul, high: +k.h * mul, low: +k.l * mul, close: price }); } catch {} liveLastT = t; }
     const el = $('#px'); if (el) { const prev = parseFloat(el.dataset.v || a.price); el.textContent = fmt(price, a.dec); if (price !== prev) flash(el, price > prev); el.dataset.v = price; }
     updateLive(price); setLive(true);
     if (k.x) setTimeout(() => loadDetail(true), 800);   // candle selesai: hitung ulang analisa
@@ -815,6 +864,7 @@ const PLAIN = [
   [/Unemployment Rate/i, 'Tingkat pengangguran'], [/Employment Change|Payroll/i, 'Perubahan jumlah pekerja'], [/Average Earnings|Wage/i, 'Kenaikan upah'],
   [/GDP/i, 'Pertumbuhan ekonomi (PDB)'], [/PMI/i, 'Aktivitas bisnis (PMI)'], [/Inflation Expectations/i, 'Perkiraan inflasi'],
   [/Consumer Sentiment|Consumer Confidence/i, 'Kepercayaan konsumen'], [/Rate Statement|Interest Rate|Cash Rate|Bank Rate|Rate Decision|Refinancing/i, 'Keputusan suku bunga'],
+  [/Hearings|Testimony/i, 'Rapat dengar pendapat bank sentral di parlemen'],
   [/Monetary Policy/i, 'Pengumuman kebijakan bank sentral'], [/(Gov|Governor|President|Chair\w*)\s+(\w+)\s+Speaks/i, (m) => `Pidato kepala bank sentral (${m[2]})`],
   [/Speaks|Testifies/i, 'Pidato pejabat'], [/Trade Balance/i, 'Neraca perdagangan'], [/Manufacturing|Philly Fed|Empire State|Industrial/i, 'Data industri/pabrik'],
   [/Housing|Home|Building|Pending/i, 'Data perumahan'], [/Financial Stability/i, 'Laporan stabilitas keuangan'], [/Bank Holiday/i, 'Hari libur bank'],
@@ -947,7 +997,7 @@ function evRow(e, extra) {
     <span class="when num">${d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
     <div class="what">
       <div class="sq-title"><b class="cur">${esc(e.cur)}</b><span>${esc(plainTitle(e.title) || e.title)}</span>${plainTitle(e.title) ? `<span class="sub">${esc(e.title)}</span>` : ''}</div>
-      <div class="sq-meta"><span class="imp ${esc(e.impact)}">${e.impact === 'High' ? 'Dampak tinggi' : 'Dampak sedang'}</span>${metaHtml(e) ? `<span>${metaHtml(e)}</span>` : ''}${cd}</div>
+      <div class="sq-meta"><span class="imp ${esc(e.impact)}">${e.impact === 'High' ? 'Dampak tinggi' : 'Dampak sedang'}</span>${metaHtml(e) ? `<span>${metaHtml(e)}</span>` : ''}${cd}<button class="link-btn" type="button" data-hist-cur="${esc(e.cur)}" data-hist-title="${esc(e.title)}">Riwayat reaksi →</button></div>
       ${extra ? `<div class="sq-extra">${extra}</div>` : ''}
     </div></div>`;
 }
@@ -979,7 +1029,7 @@ function renderOverview() {
     const top = r.factors.slice().sort((x, y) => Math.abs(y.weight * y.value) - Math.abs(x.weight * x.value))[0];
     const evs = eventsFor(it.id);
     return `<button class="ov ${toneOf(dir)}" data-open="${esc(it.id)}">
-      <div class="ov-top"><b>${esc(it.name)}</b><span class="num" data-px="${esc(r.stream || '')}" data-dec="${r.dec}">${fmt(r.price, r.dec)}</span></div>
+      <div class="ov-top"><b>${esc(it.name)}</b><span class="num" data-px="${esc(r.stream || '')}" data-mul="${r.mul || 1}" data-dec="${r.dec}">${fmt(r.price, r.dec)}</span></div>
       <div class="ov-verdict"><span class="big ${toneOf(dir)}-t">${arrow(dir)} ${esc(BIAS_ID[r.bias] || r.bias)}</span><span class="pill ${tone(r)}">${esc(r.action)}</span><span class="muted num">${r.confidence}%</span></div>
       <div class="conv" title="Keyakinan ${r.confidence}%"><i style="width:${r.confidence}%;background:var(--${toneOf(dir) === 'wait' ? 'wait' : toneOf(dir)})"></i></div>
       <p>${esc(plainSummary(r))}</p>
@@ -1026,6 +1076,7 @@ async function renderBerita() {
   [...(d.history || []), ...released].forEach((e) => { const r = e.reaction && e.reaction.xauusd; if (!r || r.m15 == null) return; const k = e.cur + ' ' + e.title; (groups[k] = groups[k] || []).push(r); });
   const pat = Object.entries(groups).map(([k, rs]) => ({ k, n: rs.length, avg: rs.reduce((s, r) => s + (r.range15 || 0), 0) / rs.length, up: rs.filter((r) => r.m15 > 0).length })).sort((a, b) => b.avg - a.avg).slice(0, 12);
   box.innerHTML = `
+    <div class="mood"><div><div class="label">Riwayat terpanjang</div><div class="big">Keputusan suku bunga AS (FOMC)</div></div><p>68 kejadian sejak 2017: seberapa jauh BTC dan emas bergerak 1, 5, 15, dan 60 menit setelah keputusan diumumkan. <button class="link-btn" type="button" data-hist-cur="USD" data-hist-title="Federal Funds Rate">Lihat riwayatnya →</button></p></div>
     <div class="view-head"><h1>Berita &amp; reaksi pasar</h1><a class="btn" href="https://www.forexfactory.com/calendar" target="_blank" rel="noopener">Lihat angka aktual di Forex Factory</a></div>
     <p class="note" style="margin:-6px 0 0">Reaksi diukur otomatis dari harga emas (PAXG) dan BTC di Binance: perubahan 15 menit dan 1 jam setelah rilis, plus rentang naik-turunnya. Feed kalender tidak memuat angka aktual, jadi angka itu perlu dilihat di situs Forex Factory.</p>
     <div class="two top">
@@ -1260,8 +1311,125 @@ async function renderPeta() {
 const AFFECTS_UI = { USD: ['xauusd', 'btcusd', 'eurusd', 'usdjpy'], EUR: ['eurusd'], GBP: ['gbpusd'], JPY: ['usdjpy'], CNY: ['xauusd'] };
 const COT_IDS = ['xauusd', 'eurusd', 'gbpusd', 'usdjpy'];
 
+// ---------- Riwayat reaksi per berita ----------
+const pctTxt = (v, d = 2) => v == null ? '–' : `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(d).replace('.', ',')}%`;
+const absTxt = (v, d = 2) => v == null ? '–' : `±${Math.abs(v).toFixed(d).replace('.', ',')}%`;
+const ASSET_NAME = { btcusd: 'Bitcoin', xauusd: 'Emas (PAXG)' };
+function openDrawer(title, html) { $('#drawer-title').textContent = title; $('#drawer-body').innerHTML = html; $('#drawer').hidden = false; document.body.style.overflow = 'hidden'; }
+function closeDrawer() { $('#drawer').hidden = true; document.body.style.overflow = ''; }
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#drawer').hidden) closeDrawer(); });
+async function openHistory(cur, title) {
+  const name = `${plainTitle(title) || title} (${cur})`;
+  openDrawer(name, '<div class="state"><b>Memuat riwayat…</b></div>');
+  let d; try { d = await api(`/api/event-history?cur=${encodeURIComponent(cur)}&title=${encodeURIComponent(title)}`); }
+  catch (e) { $('#drawer-body').innerHTML = `<div class="state"><b>Riwayat tidak bisa dimuat</b>${esc(e.message)}</div>`; return; }
+  const ids = Object.keys(d.stats);
+  if (!ids.length) {
+    $('#drawer-body').innerHTML = `<div class="state"><b>Belum ada riwayat untuk berita ini</b>Aplikasi mulai mencatat reaksi pasar sejak dipasang. Setelah berita ini keluar beberapa kali, polanya akan muncul di sini.</div>`;
+    return;
+  }
+  const H = [['1', '1 menit'], ['5', '5 menit'], ['15', '15 menit'], ['60', '1 jam']];
+  const sentences = ids.map((id) => {
+    const st = d.stats[id], m = st.m15, ratio = m.size && m.normal ? m.size / m.normal : null;
+    const dirTxt = m.up >= 65 ? `cenderung naik (${m.up}% dari ${st.n} kejadian)` : m.up <= 35 ? `cenderung turun (hanya ${m.up}% naik dari ${st.n} kejadian)` : `tidak bisa ditebak: naik di ${m.up}% dari ${st.n} kejadian, seperti lempar koin`;
+    return `<li><b>${ASSET_NAME[id]}</b> biasanya bergerak ${absTxt(m.size)} dalam 15 menit${ratio ? `, sekitar <b>${ratio.toFixed(1).replace('.', ',')}× lebih besar</b> dari jam yang sama di hari biasa` : ''}. Arahnya ${dirTxt}.</li>`;
+  }).join('');
+  const coin = ids.every((id) => d.stats[id].m15.up > 35 && d.stats[id].m15.up < 65);
+  const act = { title: coin ? 'Jangan menebak arah sebelum rilis' : 'Arah cukup sering sama, tapi tetap waspada', tone: 'wait', steps: [
+    coin ? 'Riwayat menunjukkan arahnya seperti lempar koin. Membuka posisi sebelum rilis sama dengan berjudi.' : 'Riwayat menunjukkan kecenderungan arah, tapi tidak selalu terjadi. Jangan dijadikan satu-satunya alasan masuk.',
+    'Kalau sudah punya posisi, pastikan stop loss terpasang dan cukup jauh, karena gerakannya jauh lebih besar dari biasa.',
+    'Tunggu 15–30 menit setelah rilis, lalu ikuti arah yang terbentuk (lihat halaman Analisa).'] };
+  const statTable = `<div class="scroll-x"><table class="hist-table num"><thead><tr><th>Aset</th>${H.map(([, l]) => `<th>${l}</th>`).join('')}</tr></thead><tbody>${ids.map((id) => {
+    const st = d.stats[id];
+    return `<tr><td style="font-family:var(--sans)"><b>${ASSET_NAME[id]}</b><small>${st.n} kejadian</small></td>${H.map(([k]) => { const m = st['m' + k]; return `<td>${absTxt(m.size)}<small>naik ${m.up}% · biasa ${absTxt(m.normal)}</small></td>`; }).join('')}</tr>`;
+  }).join('')}</tbody></table></div><p class="note" style="margin:6px 0 0">Angka besar: gerak harga yang umum (median) setelah rilis. "Naik": berapa persen kejadian harganya naik. "Biasa": gerak pada jam yang sama di hari kerja tanpa berita ini.${ids.includes('xauusd') ? ' Emas memakai PAXG yang transaksinya sepi per menit, jadi angka 1 menitnya bisa terlalu kecil.' : ''}</p>`;
+  const rows = d.rows.slice(0, 40).map((r) => `<tr><td style="font-family:var(--sans)">${new Date(r.t).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}<small>${new Date(r.t).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}${r.forecast ? ' · perkiraan ' + esc(r.forecast) : ''}</small></td>${['btcusd', 'xauusd'].map((id) => { const x = r.pct[id]; return x ? `<td class="${x.p15 >= 0 ? 'up-t' : 'down-t'}">${pctTxt(x.p15)}<small>1j ${pctTxt(x.p60)}</small></td>` : '<td class="muted">–</td>'; }).join('')}</tr>`).join('');
+  $('#drawer-body').innerHTML = `
+    <div class="card"><h2>Potensi gerak setelah rilis</h2><ul class="story">${sentences}</ul></div>
+    ${actionHtml(act)}
+    <div class="card">${statTable}</div>
+    <div class="card"><h2>Riwayat per kejadian</h2><div class="scroll-x"><table class="hist-table num"><thead><tr><th>Tanggal</th><th>Bitcoin 15 menit</th><th>Emas 15 menit</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <p class="note">${d.isFomc ? 'Jadwal rapat dari situs resmi The Fed sejak 2017, harga dari Binance.' : 'Dicatat otomatis oleh aplikasi sejak dipasang.'} Arah "lebih baik atau lebih buruk dari perkiraan" belum tersedia karena butuh data angka aktual historis.</p></div>`;
+}
+document.addEventListener('click', (e) => {
+  if (e.target.closest('[data-close]')) { closeDrawer(); return; }
+  const h = e.target.closest('[data-hist-cur]');
+  if (h) { e.stopPropagation(); openHistory(h.dataset.histCur, h.dataset.histTitle); }
+});
+
+// ---------- Strategi portofolio ----------
+const COIN_NAME = { BTCUSDT: 'Bitcoin', ETHUSDT: 'Ethereum', SOLUSDT: 'Solana', BNBUSDT: 'BNB', XRPUSDT: 'XRP', PAXGUSDT: 'Emas (PAXG)' };
+const pctBig = (v, d = 1) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v * 100).toFixed(d).replace('.', ',')}%`;
+function holdingText(w) {
+  const ks = Object.keys(w).filter((k) => w[k] > 0);
+  const total = ks.reduce((s, k) => s + w[k], 0);
+  const parts = ks.map((k) => `${Math.round(w[k] * 100)}% ${COIN_NAME[k] || k}`);
+  if (total < 0.999) parts.push(`${Math.round((1 - total) * 100)}% tunai (USDT)`);
+  return parts.length ? parts.join(', ') : '100% tunai (USDT)';
+}
+function curveSvg(main, bench) {
+  const W = 340, H = 180, padL = 34, padB = 18, all = [main.curve, ...bench.map((b) => b.curve)];
+  const t0 = main.curve[0][0], t1 = main.curve[main.curve.length - 1][0];
+  const vals = all.flat().map((p) => p[1]).filter((v) => v > 0), lo = Math.log(Math.min(...vals) * 0.9), hi = Math.log(Math.max(...vals) * 1.1);
+  const X = (t) => padL + ((t - t0) / (t1 - t0)) * (W - padL - 6), Y = (v) => (H - padB) - ((Math.log(v) - lo) / (hi - lo)) * (H - padB - 6);
+  const ticks = [0.25, 0.5, 1, 2, 5, 10, 20, 50, 100].filter((v) => Math.log(v) > lo && Math.log(v) < hi);
+  const line = (c, color, w) => `<polyline fill="none" stroke="${color}" stroke-width="${w}" stroke-linejoin="round" points="${c.map(([t, v]) => `${X(t).toFixed(1)},${Y(v).toFixed(1)}`).join(' ')}"/>`;
+  const years = []; for (let y = new Date(t0).getUTCFullYear() + 1; y <= new Date(t1).getUTCFullYear(); y++) years.push(Date.UTC(y, 0, 1));
+  const step = Math.ceil(years.length / 5);
+  return `<svg class="curve" viewBox="0 0 ${W} ${H}" role="img" aria-label="Grafik nilai portofolio">
+    ${ticks.map((v) => `<line x1="${padL}" x2="${W - 6}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${padL - 4}" y="${Y(v) + 4}" text-anchor="end" font-size="10" fill="var(--muted)">${v}×</text>`).join('')}
+    ${years.filter((_, k) => k % step === 0).map((t) => `<text x="${X(t)}" y="${H - 4}" text-anchor="middle" font-size="10" fill="var(--muted)">${new Date(t).getUTCFullYear()}</text>`).join('')}
+    ${bench.map((b, k) => line(b.curve, k ? 'var(--wait)' : 'var(--muted)', 1.2)).join('')}
+    ${line(main.curve, 'var(--accent)', 2)}
+  </svg>`;
+}
+const PF_NOTES = {
+  btcValue: (s, b) => `Strategi ini ${s.cagr < b[0].cagr ? `<b>kalah</b> dari sekadar membeli lalu menahan BTC (${pctBig(b[0].cagr)} per tahun)` : `mengalahkan beli-lalu-tahan BTC (${pctBig(b[0].cagr)} per tahun)`}, dan penurunan terdalamnya hampir sama besar. Kelebihannya hanya aturan yang jelas kapan mengurangi saat harga sangat mahal.`,
+  goldBtcTrend: (s, b) => `Untung per tahunnya ${s.cagr < b[1].cagr ? '<b>lebih kecil</b> dari menahan emas saja' : 'lebih besar dari menahan emas saja'} (${pctBig(b[1].cagr)}), tapi jauh lebih aman dari menahan BTC (penurunan terdalam ${pctBig(s.maxDD)} lawan ${pctBig(b[0].maxDD)}).`,
+  cryptoTrend: (s) => `Hasil ini <b>terlalu bagus untuk dipercaya penuh</b>: daftar koinnya dipilih hari ini, setelah tahu Solana naik ratusan kali lipat. Tanpa Solana, BNB, dan XRP, hasil ujinya turun ke sekitar +42% per tahun. Strategi ini juga pernah turun ${pctBig(s.maxDD, 0)} dari puncak.`,
+};
+let pfData = null;
+async function renderStrategi() {
+  const box = $('#view-strategi'); if (box.hidden) return;
+  if (!pfData) box.innerHTML = '<div class="state"><b>Menghitung hasil uji strategi…</b>Mengambil data harga harian sejak 2017.</div>';
+  try { pfData = pfData || await api('/api/portfolio'); } catch (e) { return failBox(box, 'Strategi tidak bisa dihitung', e); }
+  if (box.hidden) return;
+  const cards = pfData.strategies.map((st) => {
+    const act = { title: `Kalau mengikuti strategi ini: ${holdingText(st.weights)}`, tone: Object.keys(st.weights).length ? 'up' : 'wait', steps: [
+      `Posisi strategi saat ini: ${holdingText(st.weights)}.${st.lastRebal ? ` Terakhir diubah ${new Date(st.lastRebal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}.` : ''}`,
+      'Cek halaman ini seminggu sekali (hari Senin). Ubah porsi hanya kalau posisi strategi berubah.',
+      'Pakai uang yang tidak dibutuhkan beberapa tahun ke depan. Strategi ini bisa turun tajam di tengah jalan.'] };
+    return `<article class="pf">
+      <h2>${esc(st.name)}</h2><p>${esc(st.desc)}</p>
+      <div class="pf-legend"><span><i style="background:var(--accent)"></i>Strategi ini</span>${st.bench.map((b, k) => `<span><i style="background:${k ? 'var(--wait)' : 'var(--muted)'}"></i>${esc(b.name)}</span>`).join('')}</div>
+      ${curveSvg(st, st.bench)}
+      <div class="pf-metrics num">
+        <div><small>Untung per tahun</small><b class="${st.cagr >= 0 ? 'up-t' : 'down-t'}">${pctBig(st.cagr)}</b></div>
+        <div><small>Turun terdalam</small><b class="down-t">${pctBig(st.maxDD)}</b></div>
+        <div><small>Skor untung/risiko</small><b>${st.sharpe.toFixed(2).replace('.', ',')}</b></div>
+      </div>
+      <p>${PF_NOTES[st.key](st, st.bench)}</p>
+      <div class="pf-now">${actionHtml(act)}</div>
+      <details><summary>Aturan, hasil per tahun, dan pembanding</summary>
+        <p style="margin-bottom:8px"><b style="color:var(--fg)">Aturan:</b> ${esc(st.rule)}</p>
+        <div class="scroll-x"><table class="hist-table num"><thead><tr><th>Tahun</th><th>Hasil</th></tr></thead><tbody>${st.yearly.map(([y, r]) => `<tr><td>${y}</td><td class="${r >= 0 ? 'up-t' : 'down-t'}">${pctBig(r, 0)}</td></tr>`).join('')}</tbody></table></div>
+        <div class="scroll-x" style="margin-top:8px"><table class="hist-table num"><thead><tr><th>Pembanding</th><th>Per tahun</th><th>Turun terdalam</th><th>Skor</th></tr></thead><tbody>
+          <tr><td style="font-family:var(--sans)"><b>Strategi ini</b></td><td>${pctBig(st.cagr)}</td><td>${pctBig(st.maxDD)}</td><td>${st.sharpe.toFixed(2)}</td></tr>
+          ${st.bench.map((b) => `<tr><td style="font-family:var(--sans)">${esc(b.name)}</td><td>${pctBig(b.cagr)}</td><td>${pctBig(b.maxDD)}</td><td>${b.sharpe.toFixed(2)}</td></tr>`).join('')}</tbody></table></div>
+      </details>
+    </article>`;
+  }).join('');
+  box.innerHTML = `<div class="view-head"><h1>Strategi portofolio</h1><span class="muted">uji dengan harga harian sejak ${pfData.strategies.map((x) => x.start.slice(0, 4)).sort()[0]} · diperbarui ${new Date(pfData.updated).toLocaleDateString('id-ID')}</span></div>
+    <div class="warn-box"><b>Baca ini dulu.</b><ul>
+      <li>Ini hasil uji di masa lalu, bukan jaminan hasil ke depan.</li>
+      <li>Biaya transaksi 0,1% sudah dihitung. Pajak, selisih harga saat order, dan biaya penarikan belum.</li>
+      <li>"Skor untung/risiko" (rasio Sharpe): di atas 1 berarti untungnya sepadan dengan naik-turunnya; di bawah 0,5 berarti banyak guncangan untuk hasil yang kecil.</li>
+      <li>Grafik memakai skala kelipatan: 2× berarti uang menjadi dua kali lipat.</li></ul></div>
+    <div class="pf-grid">${cards}</div>`;
+}
+
 // ---------- Navigasi antar halaman ----------
-const VIEWS = ['ringkasan', 'analisa', 'berita', 'cot', 'korelasi', 'penggerak', 'regime', 'rekap', 'peta'];
+const VIEWS = ['ringkasan', 'analisa', 'berita', 'cot', 'korelasi', 'penggerak', 'regime', 'rekap', 'peta', 'strategi'];
 function currentView() { const h = location.hash.slice(1); return VIEWS.includes(h) ? h : 'ringkasan'; }
 function showView() {
   const v = currentView();
@@ -1272,7 +1440,7 @@ function showView() {
   $('#view-berita').hidden = v !== 'berita';
   $('#view-cot').hidden = v !== 'cot';
   $('#view-korelasi').hidden = v !== 'korelasi';
-  ['penggerak', 'regime', 'rekap', 'peta'].forEach((x) => { $('#view-' + x).hidden = v !== x; });
+  ['penggerak', 'regime', 'rekap', 'peta', 'strategi'].forEach((x) => { $('#view-' + x).hidden = v !== x; });
   $('#detail').hidden = v !== 'analisa';
   if (v === 'ringkasan') { renderOverview(); if (!ov.at || Date.now() - ov.at > 5 * 60e3) loadOverview(); }
   if (v === 'berita') renderBerita();
@@ -1282,6 +1450,7 @@ function showView() {
   if (v === 'regime') renderRegime();
   if (v === 'rekap') renderRekap();
   if (v === 'peta') renderPeta();
+  if (v === 'strategi') renderStrategi();
   window.scrollTo(0, 0);
 }
 $('#tabs').addEventListener('click', (e) => { const b = e.target.closest('button[data-view]'); if (b) location.hash = b.dataset.view; });

@@ -58,3 +58,13 @@ Tanpa `USERS`, aplikasi terbuka untuk siapa saja yang tahu alamatnya.
 
 Data COT diambil gratis dari CFTC (publicreporting.cftc.gov), diperbarui mingguan, untuk emas, EUR, GBP, dan JPY.
 COT tidak dimasukkan ke skor sinyal: dalam uji pada emas, filter COT tidak menambah ketepatan.
+
+## Strategi portofolio
+
+Tiga strategi jangka panjang diuji dengan harga harian Binance sejak 2018/2021, dibandingkan dengan sekadar membeli lalu menahan.
+Hasilnya ditampilkan apa adanya, termasuk strategi yang kalah dari pembandingnya.
+
+## Riwayat reaksi per berita
+
+Klik "Riwayat reaksi" di halaman Berita. Keputusan suku bunga AS (FOMC) punya riwayat sejak 2017 (jadwal resmi The Fed).
+Berita lain dicatat otomatis sejak aplikasi dipasang (butuh database Upstash di Vercel agar tersimpan).
